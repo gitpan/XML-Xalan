@@ -1,5 +1,12 @@
 Revision history for Perl extension XML::Xalan.
 
+Oct 20, 2001
+- Much improved XML::Xalan::Transformer module. Now covers most of the new 
+  XalanTransformer class' API!
+
+Oct 19, 2001
+- Updated to Xalan 1.2
+
 0.01  Mon Mar 26 16:15:57 2001
 	- original version; created by h2xs 1.19
 

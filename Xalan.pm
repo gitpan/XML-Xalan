@@ -17,7 +17,7 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw();
-$VERSION = '0.06';
+$VERSION = '0.09';
 
 bootstrap XML::Xalan $VERSION;
 XML::Xalan::initialize();
@@ -69,9 +69,15 @@ sub new {
 }
 
 sub parse_stylesheet {
-    my ($self, $xsl_file) = @_;
+    my ($self, $xalan_doc) = @_;
     $self->{StyleRoot} = $self->{Processor}->_process_stylesheet(
-        # cobain long-life Construction context:
+        $xalan_doc, $self->{ConstructionCtx});
+    return $self->{StyleRoot} ? 1 : undef;
+}
+
+sub parse_file {
+    my ($self, $xsl_file) = @_;
+    $self->{StyleRoot} = $self->{Processor}->_process_file(
         $xsl_file, $self->{ConstructionCtx});
     return $self->{StyleRoot} ? 1 : undef;
 }
@@ -195,6 +201,10 @@ sub _process_stylesheet {
     shift->{core}->_processStylesheet(shift, shift->{core});
 }
 
+sub _process_file {
+    shift->{core}->_processFile(shift, shift->{core});
+}
+
 sub _set_stylesheet_param {
     my ($self, $key, $val, $err) = @_;
     $self->{core}->_set_stylesheet_param($key, $val, $self->{Error});
@@ -209,7 +219,7 @@ sub _transform_to_file {
 sub _transform_doc_to_file {
     my ($self, $doc, $xml_out, $ExecCtx, $err) = @_;
     $self->{core}->_transform_doc_to_data(
-		$doc, $xml_out, $ExecCtx->{core}, $err);
+        $doc, $xml_out, $ExecCtx->{core}, $err);
 }
 
 sub _transform_to_data {
@@ -289,7 +299,7 @@ XML::Xalan - Perl interface to Xalan
   use XML::Xalan;
 
   $p = new XML::Xalan;
-  $p->parse_stylesheet($xsl_file);
+  $p->parse_file($xsl_file);
   $p->transform_to_file($src_file, $dest_file);
     or die $p->errstr;
   my $res = $p->transform_to_data($src_file);
@@ -309,10 +319,20 @@ Constructor, with no argument. Returns an XML::Xalan object.
 
  $p = new XML::Xalan;
 
-=item $p->parse_stylesheet($xsl_file)
+=item $p->parse_file($xsl_file)
 
-Parses a specified stylesheet, and stores the result internally for further
-usages.
+Takes a path to the stylesheet file as the argument, parses it and stores the result 
+internally for further usages. Example:
+
+ $p->parse_file('./samples/docs/foo.xsl');
+
+=item $p->parse_stylesheet($xsl_doc)
+
+Same as parse_file(), but takes an XML::Xalan::Document object instead as
+the argument. 
+
+See the documentation of XML::Xerces::ParserLiaison on how to get an
+XML::Xalan::Document object.
 
 =item $p->transform_to_file($src_file, $dest_file)
 

@@ -17,7 +17,7 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw();
-$VERSION = '0.06';
+$VERSION = '0.09';
 
 bootstrap XML::Xerces::ParserLiaison $VERSION;
 

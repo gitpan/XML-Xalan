@@ -4,8 +4,8 @@ BEGIN { plan tests => 3 }
 use XML::Xalan::Transformer;
 
 my @files = (
-	'../samples/docs/bogus.xml', 
-	'../samples/docs/foo.xsl',);
+    '../samples/docs/bogus.xml', 
+    '../samples/docs/foo.xsl',);
 
 my $tr = new XML::Xalan::Transformer;
 ok($tr);

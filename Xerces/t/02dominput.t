@@ -25,7 +25,7 @@ ok($p_liaison);
 my $p = new XML::Xalan;
 ok($p);
 
-my $res = $p->parse_stylesheet('../samples/docs/foo.xsl');
+my $res = $p->parse_file('../samples/docs/foo.xsl');
 ok($res);
 
 my $doc = $p_liaison->create_document($dom);

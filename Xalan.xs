@@ -37,18 +37,30 @@
 #include <PlatformSupport/DOMStringPrintWriter.hpp>
 #include <PlatformSupport/DOMStringHelper.hpp>
 
+#include <XPath/XObjectFactoryDefault.hpp>
+#include <XPath/XPathFactoryDefault.hpp>
+#include <XPath/XPathProcessorImpl.hpp>
+
 #include <XalanSourceTree/XalanSourceTreeDOMSupport.hpp>
 #include <XalanSourceTree/XalanSourceTreeParserLiaison.hpp>
 
+#include <XSLT/XSLTEngineImpl.hpp>
+#include <XSLT/XSLTInit.hpp>
+#include <XSLT/XSLTInputSource.hpp>
+#include <XSLT/XSLTResultTarget.hpp>
+#include <XSLT/StylesheetConstructionContextDefault.hpp>
+#include <XSLT/StylesheetExecutionContextDefault.hpp>
+#include <XSLT/TraceListenerDefault.hpp>
+#include <XSLT/XSLTProcessorEnvSupportDefault.hpp>
 #include <XalanTransformer/XalanTransformer.hpp>
 
 static SV *global_flush_handler = (SV*)NULL;
 static HV *out_handler_mapping = (HV*)NULL;
 
 void write_err_str(SV *rv, char *msg) {
-	if (!SvROK(rv))
-		croak("Not a reference to Error."); 
-	sv_setpv((SV*)SvRV(rv), msg);
+    if (!SvROK(rv))
+        croak("Not a reference to Error."); 
+    sv_setpv((SV*)SvRV(rv), msg);
 }
 
 unsigned long
@@ -104,7 +116,7 @@ int _transform(
     XSLTEngineImpl& engine,
     const XSLTInputSource& theInputSource,
     XSLTResultTarget& theResultTarget,
-    StylesheetExecutionContextDefault& ExecutionCtx,
+    StylesheetExecutionContext& ExecutionCtx,
     SV *Error) 
 {
     XalanDOMString  theErrorMessage;
@@ -161,7 +173,7 @@ int _transform(
     }
     catch(...) { }
     //sv_setpv(Error, &myError[0]);
-	write_err_str(Error, &myError[0]);
+    write_err_str(Error, &myError[0]);
     myError.clear();
     myError.push_back(0);
     return retval;
@@ -238,7 +250,7 @@ int
 _transform_doc_to_file(self, xalan_doc, xml_out, ExecutionCtx, Error)
     XSLTEngineImpl *self
     XalanDocument *xalan_doc
-	const char *xml_out
+    const char *xml_out
     StylesheetExecutionContextDefault *ExecutionCtx
     SV *Error
     CODE:
@@ -252,7 +264,7 @@ _transform_doc_to_file(self, xalan_doc, xml_out, ExecutionCtx, Error)
         *ExecutionCtx, Error) < 0) {
         XSRETURN_UNDEF;
     } else {
-		XSRETURN_YES;
+        XSRETURN_YES;
     }
 
 char*
@@ -312,7 +324,7 @@ _transform_doc_to_data(self, xalan_doc, ExecutionCtx, Error)
 
 
 StylesheetRoot*
-_processStylesheet(self, xsl_file, ConstructionCtx)
+_processFile(self, xsl_file, ConstructionCtx)
     XSLTEngineImpl *self
     char *xsl_file
     StylesheetConstructionContextDefault *ConstructionCtx
@@ -321,6 +333,22 @@ _processStylesheet(self, xsl_file, ConstructionCtx)
     CODE:
     const XalanDOMString theDOMStringXSLFileName(xsl_file);
     XSLTInputSource theStylesheetSource(c_wstr(theDOMStringXSLFileName));
+
+    RETVAL = self->processStylesheet(theStylesheetSource, 
+        (StylesheetConstructionContextDefault &)*ConstructionCtx);
+
+    OUTPUT:
+    RETVAL
+
+StylesheetRoot*
+_processStylesheet(self, xalan_doc, ConstructionCtx)
+    XSLTEngineImpl *self
+    XalanDocument *xalan_doc
+    StylesheetConstructionContextDefault *ConstructionCtx
+    PREINIT:
+    char *CLASS = "XML::Xalan::StylesheetRoot";
+    CODE:
+    XSLTInputSource theStylesheetSource(xalan_doc);
 
     RETVAL = self->processStylesheet(theStylesheetSource, 
         (StylesheetConstructionContextDefault &)*ConstructionCtx);

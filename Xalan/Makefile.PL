@@ -18,7 +18,7 @@ DEATH
 
 my $inc = "-I$ENV{XALANCROOT}/src -I$ENV{XERCESCROOT}/include ";
 my $libs =<< "LIBS";
--lc -L$ENV{XALANCROOT}/lib -lxalan-c1_1  -L/usr/lib
+-lc -L$ENV{XALANCROOT}/lib -lxalan-c1_2  -L/usr/lib
 -L/usr/local/lib
 LIBS
 
@@ -32,7 +32,7 @@ WriteMakefile(
     'OPTIMIZE'  => '-O2',
 	'CCFLAGS'	=> '-instances=static',
     'LIBS'	=> [$libs],   # e.g., '-lm' 
-    'DEFINE'	=> '-DLINUX -D_REENTRANT',     # e.g., '-DHAVE_SOMETHING' 
+    'DEFINE'	=> '-DLINUX -D_REENTRANT -DNDEBUG',     # e.g., '-DHAVE_SOMETHING' 
     'INC'	=> $inc,     # e.g., '-I/usr/include/other' 
-	'TEST_FILES' => 't/*.t',
+#	'TEST_FILES' => 't/*.t',
 );

@@ -16,6 +16,11 @@ XSLTEngineImpl *          O_OBJECT_CPP
 XObjectFactoryDefault *   O_OBJECT_CPP
 XPathFactoryDefault *     O_OBJECT_CPP
 
+const XalanParsedSource*    O_OBJECT
+XalanParsedSource*          O_OBJECT
+const XalanCompiledStylesheet * O_OBJECT
+XalanCompiledStylesheet *   O_OBJECT
+
 XalanDocument *             O_OBJECT
 XercesDOMSupport *          O_OBJECT_CPP
 const DOM_Document *        O_OBJECT

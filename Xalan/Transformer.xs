@@ -53,11 +53,15 @@ static HV *out_handler_mapping = (HV*)NULL;
  * void *out_handle is the filehandle
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 unsigned long
 out_handler_internal(
-    const void *buffer, 
+    const char *buffer, 
     unsigned long buffer_length, 
-    const void *out_handle) 
+    void *out_handle) 
 {
     dSP;
     SV **sv;
@@ -84,7 +88,7 @@ out_handler_internal(
 }
 
 void
-flush_handler_internal(const void *buffer)
+flush_handler_internal(void *buffer)
 {
     dSP;
     
@@ -100,6 +104,10 @@ flush_handler_internal(const void *buffer)
     FREETMPS;
     LEAVE;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 MODULE = XML::Xalan::Transformer    PACKAGE = XML::Xalan::Transformer
 PROTOTYPES: DISABLE
@@ -120,16 +128,104 @@ terminate()
     XalanTransformer::terminate();
     XMLPlatformUtils::Terminate();
 
-int
-transform_to_handler(self, xmlfile, xslfile, out_handle, out_handler, ...)
+const XalanCompiledStylesheet*
+compile_stylesheet_file(self, xslfile)
+    XalanTransformer *self
+    const char *xslfile
+    PREINIT:
+    int status;
+    char *CLASS = "XML::Xalan::CompiledStylesheet";
+    CODE:
+    const XalanCompiledStylesheet*  theCompiledStylesheet = 0;
+    status = self->compileStylesheet(xslfile, theCompiledStylesheet);
+
+    if (status == 0)
+    {
+        RETVAL = theCompiledStylesheet;
+    } else {
+        XSRETURN_UNDEF;
+    }
+    OUTPUT:
+    RETVAL
+
+const XalanCompiledStylesheet*
+compile_stylesheet_string(self, xslstring)
+    XalanTransformer *self
+    const char *xslstring
+    PREINIT:
+    int status;
+    char *CLASS = "XML::Xalan::CompiledStylesheet";
+    CODE:
+    const XalanCompiledStylesheet*  theCompiledStylesheet = 0;
+    istrstream  theXSLStream(xslstring, strlen(xslstring));
+
+    status = self->compileStylesheet(&theXSLStream, theCompiledStylesheet);
+
+    if (status == 0)
+    {
+        RETVAL = theCompiledStylesheet;
+    } else {
+        XSRETURN_UNDEF;
+    }
+    OUTPUT:
+    RETVAL
+
+const XalanParsedSource*
+parse_file(self, xmlfile)
     XalanTransformer *self
     const char *xmlfile
-    const char *xslfile
+    PREINIT:
+    int status;
+    char *CLASS = "XML::Xalan::ParsedSource";
+    CODE:
+    const XalanParsedSource*  theParsedSource = 0;
+    status = self->parseSource(xmlfile, theParsedSource);
+
+    if (status == 0)
+    {
+        RETVAL = theParsedSource;
+    } else {
+        XSRETURN_UNDEF;
+    }
+    OUTPUT:
+    RETVAL
+
+const XalanParsedSource*
+parse_string(self, xmlstring)
+    XalanTransformer *self
+    const char *xmlstring
+    PREINIT:
+    int status;
+    char *CLASS = "XML::Xalan::ParsedSource";
+    CODE:
+    const XalanParsedSource*  theParsedSource = 0;
+    istrstream theXMLStream(xmlstring, strlen(xmlstring));
+
+    status = self->parseSource(&theXMLStream, theParsedSource);
+
+    if (status == 0)
+    {
+        RETVAL = theParsedSource;
+    } else {
+        XSRETURN_UNDEF;
+    }
+    OUTPUT:
+    RETVAL
+
+int
+transform_to_handler(self, xmlsource, stylesheet, out_handle, out_handler, ...)
+    XalanTransformer *self
+    SV *xmlsource
+    SV *stylesheet
     SV *out_handle
     SV *out_handler
     PREINIT:
     int status;
     char *key;
+    const char *xmlfile = "";
+    const char *xslfile = "";
+    XalanParsedSource *parsed_source = 0;
+    XalanCompiledStylesheet *compiled_stylesheet = 0;
     STRLEN len;
     CODE:
     if (out_handler_mapping == (HV*) NULL) {
@@ -146,14 +242,42 @@ transform_to_handler(self, xmlfile, xslfile, out_handle, out_handler, ...)
         } else {
             SvSetSV(global_flush_handler, ST(5)); 
         }   
-        status = self->transform(
-            xmlfile, xslfile, (SV*)out_handle, 
-            out_handler_internal, flush_handler_internal);
-    } else {
-        status = self->transform(
-            xmlfile, xslfile, (SV*)out_handle, 
-            out_handler_internal);
     }
+
+    if (sv_isobject(xmlsource) && (SvTYPE(SvRV(xmlsource)) == SVt_PVMG))
+    {
+        parsed_source = (XalanParsedSource *)SvIV((SV*)SvRV( xmlsource ));
+    } else {
+        xmlfile = (const char *)SvPV(xmlsource, PL_na);
+    }
+
+    /* 
+        If stylesheet is a CompiledStylesheet object, then the first arg must
+        be a ParsedSource object 
+    */
+    if (sv_isobject(stylesheet) && (SvTYPE(SvRV(stylesheet)) == SVt_PVMG))
+    {
+        compiled_stylesheet = (XalanCompiledStylesheet *)SvIV((SV*)SvRV( stylesheet ));
+        status = items > 5 ? 
+            self->transform(
+                *parsed_source, compiled_stylesheet, (SV*)out_handle, 
+                out_handler_internal, flush_handler_internal)
+            :
+            self->transform(
+                *parsed_source, compiled_stylesheet, (SV*)out_handle, 
+                out_handler_internal);
+    } else {
+        xslfile = (const char *)SvPV(stylesheet,PL_na);
+        status = items > 5 ? 
+            self->transform(
+                xmlfile, xslfile, (SV*)out_handle, 
+                out_handler_internal, flush_handler_internal)
+            :
+            self->transform(
+                xmlfile, xslfile, (SV*)out_handle, 
+                out_handler_internal);
+    }
+
     hv_delete(out_handler_mapping, key, len, G_DISCARD);
     if (status == 0) 
         XSRETURN_YES;
@@ -161,30 +285,83 @@ transform_to_handler(self, xmlfile, xslfile, out_handle, out_handler, ...)
         XSRETURN_UNDEF;
 
 int
-transform_to_file(self, xmlfile, xslfile, outfile)
+transform_to_file(self, xmlsource, stylesheet, outfile)
     XalanTransformer *self
-    const char *xmlfile
-    const char *xslfile
+    SV *xmlsource
+    SV *stylesheet
     const char *outfile
     PREINIT:
     int ret;
+    const char *xmlfile = "";
+    const char *xslfile = "";
+    XalanParsedSource *parsed_source = 0;
+    XalanCompiledStylesheet *compiled_stylesheet = 0;
     CODE:
-    ret = self->transform(xmlfile, xslfile, outfile);
+    if (sv_isobject(xmlsource) && (SvTYPE(SvRV(xmlsource)) == SVt_PVMG))
+    {
+        parsed_source = (XalanParsedSource *)SvIV((SV*)SvRV( xmlsource ));
+    } else {
+        xmlfile = (const char *)SvPV(xmlsource, PL_na);
+    }
+
+    if (sv_isobject(stylesheet) && (SvTYPE(SvRV(stylesheet)) == SVt_PVMG))
+    {
+        compiled_stylesheet = (XalanCompiledStylesheet *)SvIV((SV*)SvRV( stylesheet ));
+        ret = parsed_source ? 
+        self->transform(*parsed_source, compiled_stylesheet, outfile) :
+        self->transform(xmlfile, compiled_stylesheet, outfile);
+    } else {
+        xslfile = (const char *)SvPV(stylesheet,PL_na);
+        ret = parsed_source ? 
+        self->transform(*parsed_source, xslfile, outfile) :
+        self->transform(xmlfile, xslfile, outfile);
+    }
     if (ret == 0) 
         XSRETURN_YES;
     else
         XSRETURN_UNDEF;
 
 SV*
-transform_to_data(self, xmlfile, xslfile)
+transform_to_data(self, xmlsource, stylesheet)
     XalanTransformer *self
-    const char *xmlfile
-    const char *xslfile
+    SV *xmlsource
+    SV *stylesheet
     PREINIT:
     int ret;
+    const char *xmlfile = "";
+    const char *xslfile = "";
+    XalanParsedSource *parsed_source = 0;
+    XalanCompiledStylesheet *compiled_stylesheet = 0;
     CODE:
     ostrstream theOutputStream;
-    ret = self->transform(xmlfile, xslfile, theOutputStream);
+
+    if (sv_isobject(xmlsource) && (SvTYPE(SvRV(xmlsource)) == SVt_PVMG))
+    {
+        parsed_source = (XalanParsedSource *)SvIV((SV*)SvRV( xmlsource ));
+    } else {
+        xmlfile = (const char *)SvPV(xmlsource, PL_na);
+    }
+
+    if (sv_isobject(stylesheet) && (SvTYPE(SvRV(stylesheet)) == SVt_PVMG))
+    {
+        compiled_stylesheet = (XalanCompiledStylesheet *)SvIV((SV*)SvRV( stylesheet ));
+        ret = parsed_source ? 
+        self->transform(*parsed_source, compiled_stylesheet, 
+            theOutputStream)
+        :
+        self->transform(xmlfile, compiled_stylesheet, 
+            theOutputStream);
+
+    } else {
+        xslfile = (const char *)SvPV(stylesheet,PL_na);
+        ret = parsed_source ? 
+        self->transform(*parsed_source, xslfile, 
+            theOutputStream)
+        :
+        self->transform(xmlfile, xslfile, 
+            theOutputStream);
+    }
+
     theOutputStream << '\0';
     //PerlIO_puts((PerlIO*)IoIFP( sv_2io(fh) ), theOutputStream.str());
     if (ret == 0) 
@@ -195,6 +372,17 @@ transform_to_data(self, xmlfile, xslfile)
     RETVAL
 
 void
+set_stylesheet_param(self, key, val)
+    XalanTransformer *self
+    const char *key
+    const char *val
+    PREINIT:
+    int ret;
+    CODE:
+    self->setStylesheetParam(
+        XalanDOMString(key), XalanDOMString(val));
+
+void
 END()
     CODE:
     //PerlIO_stdoutf("Entering END()\n");
@@ -202,9 +390,16 @@ END()
     // Call the static terminator for Xerces.
     XMLPlatformUtils::Terminate();
 
-
 const char*
 XalanTransformer::getLastError()
  
+int
+XalanTransformer::destroyStylesheet(compiledStylesheet)
+    const XalanCompiledStylesheet *compiledStylesheet
+
+int
+XalanTransformer::destroyParsedSource(parsedSource)
+    const XalanParsedSource *parsedSource
+
 void
 XalanTransformer::DESTROY()

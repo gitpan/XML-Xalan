@@ -6,7 +6,7 @@ use XML::Xalan;
 my $p = XML::Xalan->new();
 ok($p);
 
-my $res = $p->parse_stylesheet('./samples/docs/foo.xsl');
+my $res = $p->parse_file('./samples/docs/foo.xsl');
 ok($res);
 
 my $doc = "./samples/docs/bogus.xml";
