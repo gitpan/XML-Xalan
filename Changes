@@ -1,6 +1,10 @@
 Revision history for Perl extension XML::Xalan.
 
+Oct 25, 2001
+- Fixed install_external_function() to save a copy of sub
+
 Oct 23, 2001
+- Added uninstall_external_function()
 - XML::Xalan and XML::Xerces::ParserLiaison are removed.
 - Fixed coredump upon external function failures
 - Added external function support!

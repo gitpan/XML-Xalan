@@ -124,10 +124,11 @@ class UserDefinedFunction : public Function
 public:
     UserDefinedFunction(
         const char* func_name, 
-        SV *func_handler):m_func_handler(func_handler) 
+        SV *func_handler) 
     {
         m_func_name = new char[strlen(func_name) + 1];
         strcpy(m_func_name, func_name);
+		m_func_handler = newSVsv(func_handler);
     }
 
     /**
@@ -158,13 +159,6 @@ public:
         STRLEN len;
         XalanDOMString tmpDOMString;
 
-        if (args.size() != 1)
-        {
-            //executionContext.error("The user defined function takes one argument!", context);
-        }
-
-        assert(args[0].null() == false);
-
 //      return executionContext.getXObjectFactory().createNumber(sqrt(args[0]->num()));
 //      return executionContext.getXObjectFactory().createString(XalanDOMString(theTimeString));
 
@@ -182,9 +176,6 @@ public:
             delete temp_str;
         }
 
-//        for (xobj = args.begin(); xobj != args.end(); ++xobj) {
-//            XPUSHs(sv_2mortal( newSVpv((char*)((*xobj)->str().data()), 0) ));
-//        }
         PUTBACK;
 
         cnt = perl_call_sv(m_func_handler, G_SCALAR);
@@ -576,6 +567,14 @@ install_external_function(self, nspace, func_name, func_handler)
     SV *func_handler
     CODE:
     self->installExternalFunction(XalanDOMString(nspace), XalanDOMString(func_name), UserDefinedFunction(func_name, func_handler));
+
+void
+uninstall_external_function(self, nspace, func_name)
+	XalanTransformer *self
+	const char *nspace
+	const char *func_name
+	CODE:
+	self->uninstallExternalFunction(XalanDOMString(nspace), XalanDOMString(func_name));
 
 void
 XalanTransformer::DESTROY()

@@ -27,7 +27,14 @@
 
   <xsl:template match="now">       
     <when>
+    <xsl:choose>
+	  <xsl:when test="function-available('external:asctime')"> 
       Date and time when we figured all this out: <xsl:value-of select="external:asctime()"/>.
+	  </xsl:when>
+	  <xsl:otherwise>
+		  The functions external:asctime() is not available!
+	  </xsl:otherwise>
+    </xsl:choose>
     </when>
   </xsl:template>
 

@@ -2,7 +2,7 @@ use Test;
 use strict;
 use POSIX qw(strftime pow);
 
-BEGIN { plan tests => 3 }
+BEGIN { plan tests => 4 }
 use XML::Xalan::Transformer;
 
 my @files = (
@@ -47,4 +47,10 @@ for (keys %functions) {
 }
 
 my $res = $tr->transform_to_file($parsed, @files[1,2]);
+ok($res) or print STDERR $tr->errstr;
+
+# now, uninstall 'asctime' function..
+
+$tr->uninstall_external_function($namespace, 'asctime');
+$res = $tr->transform_to_file($parsed, @files[1,2]);
 ok($res) or print STDERR $tr->errstr;

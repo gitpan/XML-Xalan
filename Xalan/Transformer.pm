@@ -17,7 +17,7 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw();
-$VERSION = '0.20';
+$VERSION = '0.21';
 
 bootstrap XML::Xalan::Transformer $VERSION;
 XML::Xalan::Transformer::initialize();
@@ -186,7 +186,10 @@ Set an XSLT parameter, $key is the param name and val is the assigned value. Ret
 
 =item $tr->install_external_function($namespace, $function_name, $function)
 
-Install a user defined function as an extension. Example:
+Install a user defined function as an extension. Returns: nothing. This opens interesting possibilities 
+since now you have a Perl-powered XSLT transformer! :-)
+
+Example:
 
  my $namespace = "http://ExternalFunction.xalan-c++.xml.apache.org";
  my $func_name = "square-root";
@@ -205,7 +208,52 @@ Install a user defined function as an extension. Example:
 The function to install B<must> return a scalar. In case of fatal error,
 don't C<die()>, but you should return undef. 
 
-Take a look at Xalan/t/08external.t for more usage variations.
+Another example is a function to remove html tags:
+
+ $tr->install_external_function($namespace, 'plain-text', 
+     sub {
+         my $html_text = shift;
+         return HTML::FormatText->new->format(parse_html($html_text));
+     });
+
+ my $parsed = $tr->parse_string(<<"XML");
+ <?xml version="1.0"?>
+ <doc>
+  <value><![CDATA[<B>Something bold</B><p>and a new paragraph..</p>]]></value>
+ </doc>
+ XML
+
+ my $compiled = $tr->compile_stylesheet_string(<<'XSLT');
+ <?xml version="1.0"?> 
+ <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
+                xmlns:external="http://ExternalFunction.xalan-c++.xml.apache.org"
+        exclude-result-prefixes="external">
+ <xsl:output method="text"/>
+  <xsl:template match="doc">
+  <xsl:choose>
+    <xsl:when test="function-available('external:plain-text')">
+      <xsl:value-of select="external:plain-text(value)"/>
+    </xsl:when>
+    <xsl:otherwise>
+      Function external:plain-text() is not available!
+    </xsl:otherwise>
+  </xsl:choose>
+  </xsl:template>
+ </xsl:stylesheet>  
+ XSLT
+
+ die $tr->errstr unless $compiled;
+ my $res = $tr->transform_to_data($parsed, $compiled) or die $tr->errstr;
+
+=item $tr->uninstall_external_function($namespace, $function_name)
+
+Uninstall a user defined function. Returns: nothing. For example, to
+uninstall the square-root example above:
+
+ my $namespace = "http://ExternalFunction.xalan-c++.xml.apache.org";
+ my $func_name = "square-root";
+
+ $tr->uninstall_external_function($namespace, $func_name);
 
 =item $tr->errstr()
 
@@ -229,7 +277,7 @@ C<XML::Xalan::Transformer> object for a long time and using either compiled
 stylesheet or parsed source, be careful to call the appropriate 
 C<destroy_stylesheet()> or C<destroy_parsed_source()> to remove it from the 
 internal list (thus, from the memory) once it's no longer used. Otherwise,
-the memory used will be accumulated regardless the objects are already out of
+the memory used will be accumulated regardless of the objects are already out of
 scope, and the wasted allocated memory will be freed only when the
 C<XML::Xalan::Transformer> object runs out of scope. 
 
