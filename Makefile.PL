@@ -1,3 +1,14 @@
+
+#
+#   Copyright (c) 2001 Edwin Pratomo
+#
+#   You may distribute under the terms of either the GNU General Public
+#   License or the Artistic License, as specified in the Perl README file,
+#   with the exception that it cannot be placed on a CD-ROM or similar media
+#   for commercial distribution without the prior approval of the author.
+#
+
+use 5.005;
 use ExtUtils::MakeMaker 5.16, qw(prompt &WriteMakefile $Verbose);
 use Config;
 use strict;
@@ -114,7 +125,7 @@ WriteMakefile(
     'ABSTRACT'  => 'Perl interface to Xalan C++',
     'VERSION_FROM' => 'Xalan.pm', # finds $VERSION
     'OBJECT'    => '$(O_FILES)',
-     'clean'    => {FILES => "*.cpp"},
+     'clean'    => {FILES => "Xalan.cpp"},
     %config,
 );
 

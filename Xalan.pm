@@ -16,9 +16,10 @@ require Exporter;
 require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
-@EXPORT = qw();
-$VERSION = '0.32';
+
+$VERSION = '0.41';
 bootstrap XML::Xalan $VERSION;
+
 
 package XML::Xalan::Transformer;
 
@@ -28,9 +29,24 @@ XML::Xalan::Transformer::initialize();
 *create_document_builder = *create_doc_builder = \&XML::Xalan::Transformer::createDocumentBuilder;
 *destroy_document_builder = *destroy_doc_builder = \&XML::Xalan::Transformer::destroyDocumentBuilder;
 
-package XML::Xalan::DocumentBuilder;
+sub install_external_function {
+    my ($self, $nspace, $funcname, $funchandler, $opt) = @_;
+    $self->_install_external_function($nspace, $funcname, $funchandler, 
+        defined($opt) && exists($opt->{Context}) ? $opt->{Context} : 0);
+}
 
+package XML::Xalan::ParsedSource;
+
+*get_document = \&XML::Xalan::ParsedSource::getDocument;
+
+package XML::Xalan::DocumentBuilder;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::ParsedSource);
+
+*get_document = \&XML::Xalan::DocumentBuilder::getDocument;
 *get_content_handler = \&XML::Xalan::DocumentBuilder::getContentHandler;
+*get_dtd_handler = \&XML::Xalan::DocumentBuilder::getDTDHandler;
+*get_lexical_handler = \&XML::Xalan::DocumentBuilder::getLexicalHandler;
 
 package XML::Xalan::ContentHandler; #SAX2 content handler
 
@@ -148,6 +164,58 @@ sub comment {
     $self->_comment($comment->{Data});
 }
 
+package XML::Xalan::DOM::Document;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::Node);
+
+package XML::Xalan::DOM::DocumentType;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::Node);
+
+package XML::Xalan::DOM::Element;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::Node);
+
+package XML::Xalan::DOM::Attr;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::Node);
+
+package XML::Xalan::DOM::CharacterData;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::Node);
+
+package XML::Xalan::DOM::Text;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::CharacterData);
+
+package XML::Xalan::DOM::CDATASection;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::Text);
+
+package XML::Xalan::DOM::Comment;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::CharacterData);
+
+package XML::Xalan::DOM::EntityReference;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::Node);
+
+package XML::Xalan::DOM::Entity;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::Node);
+
+package XML::Xalan::DOM::ProcessingInstruction;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::Node);
+
+package XML::Xalan::DOM::DocumentFragment;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::Node);
+
+package XML::Xalan::DOM::Notation;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::DOM::Node);
+
 1;
 __END__
 # Below is the stub of documentation for your module. You better edit it!
@@ -179,6 +247,7 @@ Edwin Pratomo, edpratomo@cpan.org
 
 =head1 SEE ALSO
 
-C<XML::Xalan::Transformer>(3), C<XML::Xalan::DocumentBuilder>(3).
+C<XML::Xalan::Transformer>(3), C<XML::Xalan::DocumentBuilder>(3),
+C<XML::Xalan::DOM>(3).
 
 =cut

@@ -22,6 +22,18 @@
 #include <sax2/ContentHandler.hpp>
 #include <sax2/LexicalHandler.hpp>
 #include <XalanDOM/XalanDOMException.hpp>
+#include <XalanDOM/XalanDocumentType.hpp>
+#include <XalanDOM/XalanElement.hpp>
+#include <XalanDOM/XalanAttr.hpp>
+#include <XalanDOM/XalanCDATASection.hpp>
+#include <XalanDOM/XalanEntity.hpp>
+#include <XalanDOM/XalanProcessingInstruction.hpp>
+#include <XalanDOM/XalanDocumentFragment.hpp>
+#include <XalanDOM/XalanNotation.hpp>
+
+#include <XalanDOM/XalanDOMImplementation.hpp>
+#include <XalanDOM/XalanNodeList.hpp>
+#include <XalanDOM/XalanNamedNodeMap.hpp>
 
 #include <util/PlatformUtils.hpp>
 #include <PlatformSupport/DOMStringPrintWriter.hpp>
@@ -41,6 +53,58 @@
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+
+#define DOMSTRING_2CHAR(result, domstring) \
+    { \
+        int j = 0; \
+        result = new char[domstring.length() + 1]; \
+        for (j = 0; j < domstring.length(); j++) \
+            *(result + j) = domstring[j]; \
+        *(result + j) = '\0'; \
+    }
+
+#define BLESS_CORRECT_NODE_CLASS(sv, node) \
+	switch (node->getNodeType()) { \
+		case XalanNode::ELEMENT_NODE: \
+           	sv_setref_pv( sv, "XML::Xalan::DOM::Element", (void*)node ); \
+            break; \
+		case XalanNode::ATTRIBUTE_NODE: \
+			sv_setref_pv( sv, "XML::Xalan::DOM::Attr", (void*)node ); \
+			break; \
+		case XalanNode::TEXT_NODE: \
+			sv_setref_pv( sv, "XML::Xalan::DOM::Text", (void*)node ); \
+			break; \
+		case XalanNode::CDATA_SECTION_NODE: \
+			sv_setref_pv( sv, "XML::Xalan::DOM::CDATASection", (void*)node ); \
+			break; \
+		case XalanNode::ENTITY_REFERENCE_NODE: \
+			sv_setref_pv( sv, "XML::Xalan::DOM::EntityReference", (void*)node ); \
+			break; \
+		case XalanNode::ENTITY_NODE: \
+			sv_setref_pv( sv, "XML::Xalan::DOM::Entity", (void*)node ); \
+			break; \
+		case XalanNode::PROCESSING_INSTRUCTION_NODE: \
+			sv_setref_pv( sv, "XML::Xalan::DOM::ProcessingInstruction", (void*)node ); \
+			break; \
+		case XalanNode::COMMENT_NODE: \
+			sv_setref_pv( sv, "XML::Xalan::DOM::Comment", (void*)node ); \
+			break; \
+		case XalanNode::DOCUMENT_NODE: \
+			sv_setref_pv( sv, "XML::Xalan::DOM::Document", (void*)node ); \
+			break; \
+		case XalanNode::DOCUMENT_TYPE_NODE: \
+			sv_setref_pv( sv, "XML::Xalan::DOM::DocumentType", (void*)node ); \
+			break; \
+		case XalanNode::DOCUMENT_FRAGMENT_NODE: \
+			sv_setref_pv( sv, "XML::Xalan::DOM::DocumentFragment", (void*)node ); \
+			break; \
+		case XalanNode::NOTATION_NODE: \
+			sv_setref_pv( sv, "XML::Xalan::DOM::Notation", (void*)node ); \
+			break; \
+		case XalanNode::UNKNOWN_NODE: \
+			sv_setref_pv( sv, "XML::Xalan::DOM::Node", (void*)node ); \
+			break; \
+	}
 
 #ifdef _EXPERIMENTAL
     #include "XSv.hpp"
@@ -123,7 +187,8 @@ class UserDefinedFunction : public Function
 public:
     UserDefinedFunction(
         const char* func_name, 
-        SV *func_handler) 
+        SV *func_handler,
+        bool with_context = 0):m_with_context(with_context)
     {
         m_func_name = new char[strlen(func_name) + 1];
         strcpy(m_func_name, func_name);
@@ -150,7 +215,7 @@ public:
     execute(
             XPathExecutionContext&          executionContext,
             XalanNode*                      context,
-            int                             /* opPos */,
+            int                             opPos,
             const XObjectArgVectorType&     args)
     {
         dSP;
@@ -159,7 +224,7 @@ public:
         const XObjectPtr *xobj;
         XObjectPtr retxobj;
         int cnt;
-        SV *result;
+        SV *result, *sv_context;
         char *str, *temp_str;
         STRLEN len;
         XalanDOMString tmpDOMString;
@@ -169,12 +234,16 @@ public:
 #endif
 
 //      return executionContext.getXObjectFactory().createNumber(sqrt(args[0]->num()));
-//      return executionContext.getXObjectFactory().createString(XalanDOMString(theTimeString));
 
         ENTER;
         SAVETMPS;
 
         PUSHMARK(SP);
+        if (m_with_context) {
+            sv_context = sv_newmortal();
+			BLESS_CORRECT_NODE_CLASS(sv_context, context)
+            XPUSHs(sv_context);
+        }
         for (i = 0; i < args.size(); i++) {
             //PerlIO_printf(PerlIO_stderr(), "%s: arg type: %d\n", m_func_name, args[i]->getType());
 
@@ -242,7 +311,6 @@ public:
 
         return retxobj;
     }
-
     /**
      * Create a copy of the function object.
      *
@@ -256,12 +324,13 @@ public:
     clone() const
     {
         //return new UserDefinedFunction(*this);
-        return new UserDefinedFunction(m_func_name, m_func_handler);
+        return new UserDefinedFunction(m_func_name, m_func_handler, m_with_context);
     }
 
 private:
     char *m_func_name;
     SV *m_func_handler;
+    bool m_with_context;
 };
 
 
@@ -314,7 +383,7 @@ compile_stylesheet_string(self, xslstring)
     CODE:
     const XalanCompiledStylesheet*  theCompiledStylesheet = 0;
     #if !defined(XALAN_NO_NAMESPACES)
-    using std::istrstream;
+        using std::istrstream;
     #endif
     istrstream  theXSLStream(xslstring, strlen(xslstring));
 
@@ -359,7 +428,7 @@ parse_string(self, xmlstring)
     CODE:
     const XalanParsedSource*  theParsedSource = 0;
     #if !defined(XALAN_NO_NAMESPACES)
-    using std::istrstream;
+        using std::istrstream;
     #endif
     istrstream theXMLStream(xmlstring, strlen(xmlstring));
 
@@ -627,13 +696,15 @@ destroy_parsed_source(self, parsed_source)
         XSRETURN_UNDEF;
 
 void
-install_external_function(self, nspace, func_name, func_handler)
+_install_external_function(self, nspace, func_name, func_handler, with_context)
     XalanTransformer *self
     const char *nspace
     const char *func_name
     SV *func_handler
+    bool with_context
     CODE:
-    self->installExternalFunction(XalanDOMString(nspace), XalanDOMString(func_name), UserDefinedFunction(func_name, func_handler));
+    self->installExternalFunction(XalanDOMString(nspace), XalanDOMString(func_name), 
+        UserDefinedFunction(func_name, func_handler, with_context));
 
 void
 uninstall_external_function(self, nspace, func_name)
@@ -655,8 +726,22 @@ XalanTransformer::destroyDocumentBuilder(doc_builder)
 void
 XalanTransformer::DESTROY()
 
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::ParsedSource
+PROTOTYPES: DISABLE
+
+XalanDocument*
+XalanParsedSource::getDocument()
+	PREINIT:
+	char *CLASS = "XML::Xalan::DOM::Document";
+
 MODULE = XML::Xalan    PACKAGE = XML::Xalan::DocumentBuilder
 PROTOTYPES: DISABLE
+
+XalanDocument*
+XalanDocumentBuilder::getDocument()
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Document";
 
 ContentHandler*
 XalanDefaultDocumentBuilder::getContentHandler()
@@ -898,4 +983,23 @@ _comment(self, chars)
     self->comment(
         c_wstr(XalanDOMString(chars)), 
         strlen(chars));
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM
+PROTOTYPES: DISABLE
+
+INCLUDE: xs.dom
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::ExecutionContext::XPath
+PROTOTYPES: DISABLE
+
+XObjectFactory*
+get_xobject_factory(self)
+    XPathExecutionContext *self
+    PREINIT:
+    char *CLASS = "XML::Xalan::XObjectFactory";
+    CODE:
+    RETVAL = &self->getXObjectFactory();
+    OUTPUT:
+    RETVAL
 

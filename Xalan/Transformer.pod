@@ -8,12 +8,10 @@ XML::Xalan::Transformer - Perl interface to XalanTransformer class
 
   my $tr = new XML::Xalan::Transformer;
 
-Compiling a stylesheet file:
-
+  # compile a stylesheet file:
   my $compiled = $tr->compile_stylesheet_file("foo.xsl");
 
-Compiling a stylesheet string:
-
+  # compile a stylesheet string:
   my $compiled = $tr->compile_stylesheet_string(<<"XSLT");
   <?xml version="1.0"?> 
   <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -23,35 +21,27 @@ Compiling a stylesheet string:
   </xsl:stylesheet>
   XSLT
 
-Parsing an XML file:
-
+  # parse an XML file:
   my $parsed = $tr->parse_file("foo.xml");
 
-Parsing an XML string:
-
+  # parse an XML string:
   my $parsed = $tr->parse_string(<<"XML");
   <?xml version="1.0"?>
   <doc>Hello</doc>
   XML
 
-Performing a transformation and storing the result into a destination file:
+  # perform a transformation and store the result into a destination file:
+  my $res = $tr->transform_to_file($src_file, $xsl_file, $dest_file);
+  my $res = $tr->transform_to_file($parsed, $xsl_file, $dest_file);
+  my $res = $tr->transform_to_file($parsed, $compiled, $dest_file);
 
-  $tr->transform_to_file($src_file, $xsl_file, $dest_file) 
-    or die $tr->errstr;
-
-  $tr->transform_to_file($parsed, $xsl_file, $dest_file)
-    or die $tr->errstr;
-
-  $tr->transform_to_file($parsed, $compiled, $dest_file)
-    or die $tr->errstr;
-
-Performing a transformation and returning the result:
-
+  # perform a transformation and return the result:
   my $res = $tr->transform_to_data($src_file, $xsl_file);
-  die $tr->errstr unless defined $res;      # error checking
-
   my $res = $tr->transform_to_data($parsed, $xsl_file);
   my $res = $tr->transform_to_data($parsed, $compiled);
+
+  # error checking
+  die $tr->errstr unless defined $res;      
 
 =head1 DESCRIPTION
 
@@ -88,13 +78,13 @@ Compiles a stylesheet string and returns an XML::Xalan::CompiledStylesheet objec
 
 =item $tr->parse_file($xml_file)
 
-Parses an XML file and returns an XML::Xalan::ParsedSource object.
+Parses an XML file and returns an C<XML::Xalan::ParsedSource> object.
 
  my $parsed = $tr->parse_file("foo.xml");
 
 =item $tr->parse_string($xml_string)
 
-Parses an XML string and returns an XML::Xalan::ParsedSource object.
+Parses an XML string and returns an C<XML::Xalan::ParsedSource> object.
 
  my $parsed = $tr->parse_string(<<"XML");
  <?xml version="1.0"?>
@@ -160,7 +150,7 @@ Set an XSLT parameter, $key is the param name and val is the assigned value. Ret
  $tr->set_stylesheet_param("user", "'johndoe'");
  my $res = $tr->transform_to_file($source, $xsl, $dest);
 
-=item $tr->install_external_function($namespace, $function_name, $function)
+=item $tr->install_external_function($namespace, $function_name, $function, \%opt)
 
 Install a user defined function as an extension. Returns: nothing. This opens interesting possibilities 
 since now you have a Perl-powered XSLT transformer! :-)
@@ -225,6 +215,10 @@ Another example is a function to remove html tags:
 
  die $tr->errstr unless $compiled;
  my $res = $tr->transform_to_data($parsed, $compiled) or die $tr->errstr;
+
+C<%attr> is an optional hashref attribute. Currently supported attribute is C<Context>, which is default to FALSE. 
+When this is set, then a context node is always passed to the callback function as the first argument. 
+A context node is an C<XML::Xalan::DOM::Node> object. 
 
 =item $tr->uninstall_external_function($namespace, $function_name)
 
@@ -313,6 +307,6 @@ Edwin Pratomo, edpratomo@cpan.org
 
 =head1 SEE ALSO
 
-C<XML::Xalan::DocumentBuilder>(3).
+C<XML::Xalan::DocumentBuilder>(3), C<XML::Xalan::ParsedSource>(3), C<XML::Xalan::DOM>(3).
 
 =cut

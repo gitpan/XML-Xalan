@@ -20,10 +20,10 @@ XML::Xalan::DocumentBuilder - Provides Perl SAX2 handlers
 
 =head1 DESCRIPTION
 
-This class provides Perl SAX2 handlers, so an C<XML::Xalan::Transformer> object can transform
+This class extends C<XML::Xalan::ParsedSource> by providing Perl SAX2 handlers, so an C<XML::Xalan::Transformer> object can transform
 input source parsed by B<any Perl SAX 2.0 conformant parser>.
 
-Currently supported handlers are content handler, dtd handler, and lexical
+Currently supported handlers are content handler, DTD handler, and lexical
 handler. 
 
 =head1 METHODS
@@ -41,6 +41,10 @@ Returns an C<XML::Xalan::DTDHandler> object.
 =item $doc_builder->get_lexical_handler()
 
 Returns an C<XML::Xalan::LexicalHandler> object.
+
+=item $doc_builder->get_document()
+
+Returns an C<XML::Xalan::DOM::Document> object. Inherited from C<XML::Xalan::ParsedSource>.
 
 =back
 
@@ -76,6 +80,6 @@ Edwin Pratomo, edpratomo@cpan.org
 
 =head1 SEE ALSO
 
-C<XML::Xalan::Transformer>(3).
+C<XML::Xalan::Transformer>(3), C<XML::Xalan::DOM>(3).
 
 =cut

@@ -1,5 +1,17 @@
 Revision history for Perl extension XML::Xalan.
 
+Dec 4, 2001
+- Added get_document() for XML::Xalan::ParsedSource
+- Drawed inheritance line from XML::Xalan::ParsedSource to XML::Xalan::DocumentBuilder
+
+Dec 3, 2001
+- Added all DOM classes!
+- Added pod documentation XML::Xalan::DOM. Fairly minimal.
+
+Dec 1, 2001
+- Added XML::Xalan::DOM:Node base class 
+- Added Context option for install_external_function()
+
 Nov 30, 2001
 - Succesfully ported to Win32!
 - Updated README
@@ -13,7 +25,7 @@ Nov 25, 2001
 - Added test in sax2_content.t
 
 Nov 16, 2001
-- Added dtd handler and lexical handler support.
+- Added DTD handler and lexical handler support.
 
 Nov 7, 2001
 - Major restructuring. 

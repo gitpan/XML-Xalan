@@ -1,0 +1,934 @@
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Notation
+PROTOTYPES: DISABLE
+
+char*
+getSystemId(self)
+    XalanNotation *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getSystemId());
+    OUTPUT:
+    RETVAL
+
+
+char*
+getPublicId(self)
+    XalanNotation *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getPublicId());
+    OUTPUT:
+    RETVAL
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::EntityReference
+PROTOTYPES: DISABLE
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::CDATASection
+PROTOTYPES: DISABLE
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::DocumentFragment
+PROTOTYPES: DISABLE
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Comment
+PROTOTYPES: DISABLE
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Attr
+PROTOTYPES: DISABLE
+
+char*
+getName(self)
+    XalanAttr *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getName());
+    OUTPUT:
+    RETVAL
+
+
+void
+setValue(self, value)
+    XalanAttr *self
+    char* value
+    CODE:
+    self->setValue(XalanDOMString(value));
+
+
+XalanElement*
+getOwnerElement(self)
+    XalanAttr *self
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Element";
+    CODE:
+    RETVAL = self->getOwnerElement();
+    if (!RETVAL)
+        XSRETURN_UNDEF;
+    OUTPUT:
+    RETVAL  
+
+char*
+getValue(self)
+    XalanAttr *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getValue());
+    OUTPUT:
+    RETVAL
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Entity
+PROTOTYPES: DISABLE
+
+char*
+getSystemId(self)
+    XalanEntity *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getSystemId());
+    OUTPUT:
+    RETVAL
+
+
+char*
+getPublicId(self)
+    XalanEntity *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getPublicId());
+    OUTPUT:
+    RETVAL
+
+
+char*
+getNotationName(self)
+    XalanEntity *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getNotationName());
+    OUTPUT:
+    RETVAL
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Document
+PROTOTYPES: DISABLE
+
+XalanEntityReference*
+createEntityReference(self, name)
+    XalanDocument *self
+    char* name
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::EntityReference";
+    CODE:
+    RETVAL = self->createEntityReference(XalanDOMString(name));
+    OUTPUT:
+    RETVAL
+
+
+XalanNode*
+XalanDocument::importNode(importedNode, deep)
+    XalanNode* importedNode
+    bool deep
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Node";
+
+
+XalanCDATASection*
+createCDATASection(self, data)
+    XalanDocument *self
+    char* data
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::CDATASection";
+    CODE:
+    RETVAL = self->createCDATASection(XalanDOMString(data));
+    OUTPUT:
+    RETVAL
+
+
+XalanDOMImplementation*
+XalanDocument::getImplementation()
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Implementation";
+
+
+XalanDocumentFragment*
+XalanDocument::createDocumentFragment()
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::DocumentFragment";
+
+
+XalanComment*
+createComment(self, data)
+    XalanDocument *self
+    char* data
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Comment";
+    CODE:
+    RETVAL = self->createComment(XalanDOMString(data));
+    OUTPUT:
+    RETVAL
+
+
+XalanAttr*
+createAttribute(self, name)
+    XalanDocument *self
+    char* name
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Attr";
+    CODE:
+    RETVAL = self->createAttribute(XalanDOMString(name));
+    OUTPUT:
+    RETVAL
+
+
+unsigned long
+XalanDocument::getNumber()
+
+
+XalanAttr*
+createAttributeNS(self, namespaceURI, qname)
+    XalanDocument *self
+    char* namespaceURI
+    char* qname
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Attr";
+    CODE:
+    RETVAL = self->createAttributeNS(XalanDOMString(namespaceURI), XalanDOMString(qname));
+    OUTPUT:
+    RETVAL
+
+
+XalanElement*
+XalanDocument::getDocumentElement()
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Element";
+
+
+XalanElement*
+getElementById(self, elementId)
+    XalanDocument *self
+    char* elementId
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Element";
+    CODE:
+    RETVAL = self->getElementById(XalanDOMString(elementId));
+    OUTPUT:
+    RETVAL
+
+
+XalanProcessingInstruction*
+createProcessingInstruction(self, target, data)
+    XalanDocument *self
+    char* target
+    char* data
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::ProcessingInstruction";
+    CODE:
+    RETVAL = self->createProcessingInstruction(XalanDOMString(target), XalanDOMString(data));
+    OUTPUT:
+    RETVAL
+
+
+XalanNodeList*
+getElementsByTagName(self, tagname)
+    XalanDocument *self
+    char* tagname
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::NodeList";
+    CODE:
+    RETVAL = self->getElementsByTagName(XalanDOMString(tagname));
+    OUTPUT:
+    RETVAL
+
+
+XalanNodeList*
+getElementsByTagNameNS(self, namespaceURI, localname)
+    XalanDocument *self
+    char* namespaceURI
+    char* localname
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::NodeList";
+    CODE:
+    RETVAL = self->getElementsByTagNameNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    OUTPUT:
+    RETVAL
+
+
+XalanDocumentType*
+XalanDocument::getDoctype()
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::DocumentType";
+
+
+XalanElement*
+createElement(self, tagname)
+    XalanDocument *self
+    char* tagname
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Element";
+    CODE:
+    RETVAL = self->createElement(XalanDOMString(tagname));
+    OUTPUT:
+    RETVAL
+
+
+XalanText*
+createTextNode(self, data)
+    XalanDocument *self
+    char* data
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Text";
+    CODE:
+    RETVAL = self->createTextNode(XalanDOMString(data));
+    OUTPUT:
+    RETVAL
+
+
+XalanElement*
+createElementNS(self, namespaceURI, qname)
+    XalanDocument *self
+    char* namespaceURI
+    char* qname
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Element";
+    CODE:
+    RETVAL = self->createElementNS(XalanDOMString(namespaceURI), XalanDOMString(qname));
+    OUTPUT:
+    RETVAL
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::ProcessingInstruction
+PROTOTYPES: DISABLE
+
+char*
+getData(self)
+    XalanProcessingInstruction *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getData());
+    OUTPUT:
+    RETVAL
+
+
+void
+setData(self, data)
+    XalanProcessingInstruction *self
+    char* data
+    CODE:
+    self->setData(XalanDOMString(data));
+
+
+char*
+getTarget(self)
+    XalanProcessingInstruction *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getTarget());
+    OUTPUT:
+    RETVAL
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::DocumentType
+PROTOTYPES: DISABLE
+
+char*
+getName(self)
+    XalanDocumentType *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getName());
+    OUTPUT:
+    RETVAL
+
+
+char*
+getSystemId(self)
+    XalanDocumentType *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getSystemId());
+    OUTPUT:
+    RETVAL
+
+
+char*
+getInternalSubset(self)
+    XalanDocumentType *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getInternalSubset());
+    OUTPUT:
+    RETVAL
+
+
+char*
+getPublicId(self)
+    XalanDocumentType *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getPublicId());
+    OUTPUT:
+    RETVAL
+
+
+const XalanNamedNodeMap*
+XalanDocumentType::getEntities()
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::NamedNodeMap";
+
+
+const XalanNamedNodeMap*
+XalanDocumentType::getNotations()
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::NamedNodeMap";
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::NodeList
+PROTOTYPES: DISABLE
+
+unsigned int
+XalanNodeList::getLength()
+
+
+XalanNode*
+XalanNodeList::item(index)
+    unsigned int index
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Node";
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Text
+PROTOTYPES: DISABLE
+
+XalanText*
+XalanText::splitText(offset)
+    unsigned int offset
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Text";
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Node
+PROTOTYPES: DISABLE
+
+XalanNode*
+replaceChild(self,  newChild, oldChild)
+    XalanNode *self
+    XalanNode* newChild
+    XalanNode* oldChild
+    CODE:
+    RETVAL = self->replaceChild(newChild, oldChild);
+    if (!RETVAL) 
+        XSRETURN_UNDEF;
+    ST(0) = sv_newmortal();
+    BLESS_CORRECT_NODE_CLASS(ST(0), RETVAL)
+
+
+char*
+getNodeValue(self)
+    XalanNode *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getNodeValue());
+    OUTPUT:
+    RETVAL
+
+
+XalanNode*
+getPreviousSibling(self)
+    XalanNode *self
+    CODE:
+    RETVAL = self->getPreviousSibling();
+    if (!RETVAL) 
+        XSRETURN_UNDEF;
+    ST(0) = sv_newmortal();
+    BLESS_CORRECT_NODE_CLASS(ST(0), RETVAL)
+
+
+const XalanNamedNodeMap*
+XalanNode::getAttributes()
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::NamedNodeMap";
+
+
+XalanNode*
+getNextSibling(self)
+    XalanNode *self
+    CODE:
+    RETVAL = self->getNextSibling();
+    if (!RETVAL) 
+        XSRETURN_UNDEF;
+    ST(0) = sv_newmortal();
+    BLESS_CORRECT_NODE_CLASS(ST(0), RETVAL)
+
+
+char*
+getNodeName(self)
+    XalanNode *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getNodeName());
+    OUTPUT:
+    RETVAL
+
+
+XalanNode*
+insertBefore(self,  newChild, refChild)
+    XalanNode *self
+    XalanNode* newChild
+    XalanNode* refChild
+    CODE:
+    RETVAL = self->insertBefore(newChild, refChild);
+    if (!RETVAL) 
+        XSRETURN_UNDEF;
+    ST(0) = sv_newmortal();
+    BLESS_CORRECT_NODE_CLASS(ST(0), RETVAL)
+
+
+int
+XalanNode::getNodeType()
+
+
+XalanDocument*
+XalanNode::getOwnerDocument()
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Document";
+
+
+char*
+getLocalName(self)
+    XalanNode *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getLocalName());
+    OUTPUT:
+    RETVAL
+
+
+XalanNode*
+getFirstChild(self)
+    XalanNode *self
+    CODE:
+    RETVAL = self->getFirstChild();
+    if (!RETVAL) 
+        XSRETURN_UNDEF;
+    ST(0) = sv_newmortal();
+    BLESS_CORRECT_NODE_CLASS(ST(0), RETVAL)
+
+
+char*
+getPrefix(self)
+    XalanNode *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getPrefix());
+    OUTPUT:
+    RETVAL
+
+
+void
+setNodeValue(self, nodeValue)
+    XalanNode *self
+    char* nodeValue
+    CODE:
+    self->setNodeValue(XalanDOMString(nodeValue));
+
+
+bool
+supports(self, feature, version)
+    XalanNode *self
+    char* feature
+    char* version
+    CODE:
+    RETVAL = self->supports(XalanDOMString(feature), XalanDOMString(version));
+    OUTPUT:
+    RETVAL
+
+
+void
+XalanNode::normalize()
+
+
+XalanNode*
+removeChild(self,  oldChild)
+    XalanNode *self
+    XalanNode* oldChild
+    CODE:
+    RETVAL = self->removeChild(oldChild);
+    if (!RETVAL) 
+        XSRETURN_UNDEF;
+    ST(0) = sv_newmortal();
+    BLESS_CORRECT_NODE_CLASS(ST(0), RETVAL)
+
+
+XalanNode*
+cloneNode(self,  deep)
+    XalanNode *self
+    bool deep
+    CODE:
+    RETVAL = self->cloneNode(deep);
+    if (!RETVAL) 
+        XSRETURN_UNDEF;
+    ST(0) = sv_newmortal();
+    BLESS_CORRECT_NODE_CLASS(ST(0), RETVAL)
+
+
+unsigned long
+XalanNode::getIndex()
+
+
+XalanNode*
+getLastChild(self)
+    XalanNode *self
+    CODE:
+    RETVAL = self->getLastChild();
+    if (!RETVAL) 
+        XSRETURN_UNDEF;
+    ST(0) = sv_newmortal();
+    BLESS_CORRECT_NODE_CLASS(ST(0), RETVAL)
+
+
+void
+setPrefix(self, prefix)
+    XalanNode *self
+    char* prefix
+    CODE:
+    self->setPrefix(XalanDOMString(prefix));
+
+
+XalanNode*
+appendChild(self,  newChild)
+    XalanNode *self
+    XalanNode* newChild
+    CODE:
+    RETVAL = self->appendChild(newChild);
+    if (!RETVAL) 
+        XSRETURN_UNDEF;
+    ST(0) = sv_newmortal();
+    BLESS_CORRECT_NODE_CLASS(ST(0), RETVAL)
+
+
+bool
+XalanNode::isIndexed()
+
+
+char*
+getNamespaceURI(self)
+    XalanNode *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getNamespaceURI());
+    OUTPUT:
+    RETVAL
+
+
+const XalanNodeList*
+XalanNode::getChildNodes()
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::NodeList";
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Implementation
+PROTOTYPES: DISABLE
+
+bool
+hasFeature(self, feature, version)
+    XalanDOMImplementation *self
+    char* feature
+    char* version
+    CODE:
+    RETVAL = self->hasFeature(XalanDOMString(feature), XalanDOMString(version));
+    OUTPUT:
+    RETVAL
+
+
+XalanDocumentType*
+createDocumentType(self, qname, publicId, systemId)
+    XalanDOMImplementation *self
+    char* qname
+    char* publicId
+    char* systemId
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::DocumentType";
+    CODE:
+    RETVAL = self->createDocumentType(XalanDOMString(qname), XalanDOMString(publicId), XalanDOMString(systemId));
+    OUTPUT:
+    RETVAL
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::CharacterData
+PROTOTYPES: DISABLE
+
+void
+appendData(self, arg)
+    XalanCharacterData *self
+    char* arg
+    CODE:
+    self->appendData(XalanDOMString(arg));
+
+
+unsigned int
+XalanCharacterData::getLength()
+
+
+char*
+getData(self)
+    XalanCharacterData *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getData());
+    OUTPUT:
+    RETVAL
+
+
+char*
+substringData(self, offset, count)
+    XalanCharacterData *self
+    unsigned int offset
+    unsigned int count
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->substringData(offset, count));
+    OUTPUT:
+    RETVAL
+
+
+void
+XalanCharacterData::deleteData(offset, count)
+    unsigned int offset
+    unsigned int count
+
+
+void
+replaceData(self, offset, count, arg)
+    XalanCharacterData *self
+    unsigned int offset
+    unsigned int count
+    char* arg
+    CODE:
+    self->replaceData(offset, count, XalanDOMString(arg));
+
+
+void
+insertData(self, offset, arg)
+    XalanCharacterData *self
+    unsigned int offset
+    char* arg
+    CODE:
+    self->insertData(offset, XalanDOMString(arg));
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::NamedNodeMap
+PROTOTYPES: DISABLE
+
+XalanNode*
+XalanNamedNodeMap::setNamedItem(arg)
+    XalanNode* arg
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Node";
+
+
+XalanNode*
+XalanNamedNodeMap::setNamedItemNS(arg)
+    XalanNode* arg
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Node";
+
+
+XalanNode*
+removeNamedItem(self, name)
+    XalanNamedNodeMap *self
+    char* name
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Node";
+    CODE:
+    RETVAL = self->removeNamedItem(XalanDOMString(name));
+    OUTPUT:
+    RETVAL
+
+
+unsigned int
+XalanNamedNodeMap::getLength()
+
+
+XalanNode*
+removeNamedItemNS(self, namespaceURI, localname)
+    XalanNamedNodeMap *self
+    char* namespaceURI
+    char* localname
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Node";
+    CODE:
+    RETVAL = self->removeNamedItemNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    OUTPUT:
+    RETVAL
+
+
+XalanNode*
+getNamedItem(self, name)
+    XalanNamedNodeMap *self
+    char* name
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Node";
+    CODE:
+    RETVAL = self->getNamedItem(XalanDOMString(name));
+    OUTPUT:
+    RETVAL
+
+
+XalanNode*
+getNamedItemNS(self, namespaceURI, localname)
+    XalanNamedNodeMap *self
+    char* namespaceURI
+    char* localname
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Node";
+    CODE:
+    RETVAL = self->getNamedItemNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    OUTPUT:
+    RETVAL
+
+
+XalanNode*
+XalanNamedNodeMap::item(index)
+    unsigned int index
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Node";
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Element
+PROTOTYPES: DISABLE
+
+void
+setAttribute(self, name, value)
+    XalanElement *self
+    char* name
+    char* value
+    CODE:
+    self->setAttribute(XalanDOMString(name), XalanDOMString(value));
+
+
+void
+setAttributeNS(self, namespaceURI, qname, value)
+    XalanElement *self
+    char* namespaceURI
+    char* qname
+    char* value
+    CODE:
+    self->setAttributeNS(XalanDOMString(namespaceURI), XalanDOMString(qname), XalanDOMString(value));
+
+
+void
+removeAttribute(self, name)
+    XalanElement *self
+    char* name
+    CODE:
+    self->removeAttribute(XalanDOMString(name));
+
+
+void
+removeAttributeNS(self, namespaceURI, localname)
+    XalanElement *self
+    char* namespaceURI
+    char* localname
+    CODE:
+    self->removeAttributeNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+
+
+char*
+getAttribute(self, name)
+    XalanElement *self
+    char* name
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getAttribute(XalanDOMString(name)));
+    OUTPUT:
+    RETVAL
+
+
+XalanNodeList*
+getElementsByTagName(self, localname)
+    XalanElement *self
+    char* localname
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::NodeList";
+    CODE:
+    RETVAL = self->getElementsByTagName(XalanDOMString(localname));
+    if (!RETVAL) 
+        PerlIO_printf(PerlIO_stderr(), "retval is null\n");
+    OUTPUT:
+    RETVAL
+
+
+char*
+getAttributeNS(self, namespaceURI, localname)
+    XalanElement *self
+    char* namespaceURI
+    char* localname
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getAttributeNS(XalanDOMString(namespaceURI), XalanDOMString(localname)));
+    OUTPUT:
+    RETVAL
+
+
+XalanNodeList*
+getElementsByTagNameNS(self, namespaceURI, localname)
+    XalanElement *self
+    char* namespaceURI
+    char* localname
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::NodeList";
+    CODE:
+    RETVAL = self->getElementsByTagNameNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    OUTPUT:
+    RETVAL
+
+
+XalanAttr*
+XalanElement::setAttributeNode(newAttr)
+    XalanAttr* newAttr
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Attr";
+
+
+XalanAttr*
+XalanElement::setAttributeNodeNS(newAttr)
+    XalanAttr* newAttr
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Attr";
+
+
+XalanAttr*
+XalanElement::removeAttributeNode(oldAttr)
+    XalanAttr* oldAttr
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Attr";
+
+
+XalanAttr*
+getAttributeNode(self, name)
+    XalanElement *self
+    char* name
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Attr";
+    CODE:
+    RETVAL = self->getAttributeNode(XalanDOMString(name));
+    OUTPUT:
+    RETVAL
+
+
+XalanAttr*
+getAttributeNodeNS(self, namespaceURI, localname)
+    XalanElement *self
+    char* namespaceURI
+    char* localname
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Attr";
+    CODE:
+    RETVAL = self->getAttributeNodeNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    OUTPUT:
+    RETVAL
+
+
+char*
+getTagName(self)
+    XalanElement *self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->getTagName());
+    OUTPUT:
+    RETVAL
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Implementation
+PROTOTYPES: DISABLE
+
+XalanDocument*
+createDocument(self, namespaceURI, qname, doctype)
+    XalanDOMImplementation *self
+    char *namespaceURI
+    char *qname
+    XalanDocumentType *doctype
+    PREINIT:
+    char *CLASS = "XML::Xalan::DOM::Document";
+    CODE:
+    RETVAL = self->createDocument(XalanDOMString(namespaceURI), XalanDOMString(qname), *doctype);
+    OUTPUT:
+    RETVAL
+

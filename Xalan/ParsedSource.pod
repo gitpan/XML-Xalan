@@ -1,0 +1,38 @@
+=head1 NAME
+
+XML::Xalan::ParsedSource - Parsed document class reusable for transformation
+
+=head1 SYNOPSIS
+
+  use XML::Xalan;
+  ...
+  
+  my $tr = new XML::Xalan::Transformer;
+  my $parsed = $tr->parse_file("foo.xml");
+
+  # get a DOM tree representation
+  my $dom = $tr->get_document();
+
+=head1 DESCRIPTION
+
+Base class designed to allow an C<XML::Xalan::Tranfomer> object to reuse a parsed document. 
+
+=head1 METHODS
+
+=over 4
+
+=item $parsed->get_document()
+
+Returns an C<XML::Xalan::DOM::Document> object.
+
+=back
+
+=head1 AUTHOR
+
+Edwin Pratomo, edpratomo@cpan.org
+
+=head1 SEE ALSO
+
+C<XML::Xalan::Transformer>(3), C<XML::Xalan::DOM>(3).
+
+=cut
