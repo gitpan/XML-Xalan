@@ -24,6 +24,8 @@
 #undef assert
 #undef list
 
+#include <Include/PlatformDefinitions.hpp>
+
 #if defined(XALAN_OLD_STREAM_HEADERS)
     #include <strstream.h>
 #else
@@ -31,24 +33,27 @@
 #endif 
 
 #include <sax/SAXException.hpp>
+#include <sax2/ContentHandler.hpp>
 #include <XalanDOM/XalanDOMException.hpp>
 
 #include <util/PlatformUtils.hpp>
 #include <PlatformSupport/DOMStringPrintWriter.hpp>
 #include <PlatformSupport/DOMStringHelper.hpp>
+#include <PlatformSupport/AttributesImpl.hpp>
 
 #include <XalanSourceTree/XalanSourceTreeDOMSupport.hpp>
 #include <XalanSourceTree/XalanSourceTreeParserLiaison.hpp>
 
 #include <XalanTransformer/XalanTransformer.hpp>
 #include <XalanTransformer/XalanCompiledStylesheetDefault.hpp>
+#include <XalanTransformer/XalanDefaultDocumentBuilder.hpp>
 
 #include <XPath/Function.hpp>
 #include <XPath/XObjectFactory.hpp>
 
-#include <PlatformSupport/XalanOutputStreamPrintWriter.hpp>
-// #include <PlatformSupport/XalanFileOutputStream.hpp>
-#include <PlatformSupport/XalanStdOutputStream.hpp>
+#ifdef _EXPERIMENTAL
+    #include "XSv.hpp"
+#endif
 
 static SV *global_flush_handler = (SV*)NULL;
 static HV *out_handler_mapping = (HV*)NULL;
@@ -65,9 +70,16 @@ static HV *out_handler_mapping = (HV*)NULL;
 extern "C" {
 #endif
 
+/* several notes.. */
 /*
     ./XPath/XPathExecutionContext.hpp:      
     typedef std::vector<XObjectPtr> XObjectArgVectorType;
+*/
+
+/*
+    ./XalanDOM/XalanDOMString.hpp:
+    // UTF-16 character...
+    typedef unsigned short  XalanDOMChar;
 */
 
 unsigned long
@@ -169,6 +181,10 @@ public:
         STRLEN len;
         XalanDOMString tmpDOMString;
 
+#ifdef _EXPERIMENTAL
+        XSv *xobj_sv;
+#endif
+
 //      return executionContext.getXObjectFactory().createNumber(sqrt(args[0]->num()));
 //      return executionContext.getXObjectFactory().createString(XalanDOMString(theTimeString));
 
@@ -177,13 +193,25 @@ public:
 
         PUSHMARK(SP);
         for (i = 0; i < args.size(); i++) {
-            tmpDOMString = args[i]->str();
-            temp_str = new char[tmpDOMString.length() + 1];
-            for (j = 0; j < tmpDOMString.length(); j++) {
-                *(temp_str + j) = tmpDOMString[j];
+            //PerlIO_printf(PerlIO_stderr(), "%s: arg type: %d\n", m_func_name, args[i]->getType());
+
+            if (args[i]->getType() == 7) {
+                warn("User defined XObject type isn't implemented yet.");
+                /* unimplemented
+                XSv tmp_sv(args[i]);
+                XPUSHs(sv_2mortal( newSVsv((XSv*)args[i]->getSV) ));
+                */
+            } else {
+
+                tmpDOMString = args[i]->str();
+                temp_str = new char[tmpDOMString.length() + 1];
+                for (j = 0; j < tmpDOMString.length(); j++) {
+                    *(temp_str + j) = tmpDOMString[j];
+                }
+                XPUSHs(sv_2mortal( newSVpv(temp_str, tmpDOMString.length()) ));
+
+                delete temp_str;
             }
-            XPUSHs(sv_2mortal( newSVpv(temp_str, tmpDOMString.length()) ));
-            delete temp_str;
         }
 
         PUTBACK;
@@ -200,12 +228,29 @@ public:
         if (!SvOK(result)) 
             executionContext.error("Failed callback!", context);
 
-        str = SvPV(result, len);
+        // tambahkan pengecekan di sini, apakah SV berisi string atau tidak,
+        // jika tidak, coba return object XSv.
 
-        retxobj = executionContext.getXObjectFactory().createString(
-            XalanDOMString( str ));
+//      if (sv_isobject(result) && (SvTYPE(SvRV(result)) == SVt_PVMG)) {
+        if (sv_isobject(result)) {
+#ifdef _EXPERIMENTAL
+            PerlIO_printf(PerlIO_stderr(), "Returning a Perl SV\n");
+            xobj_sv = new XSv(result);
+            xobj_sv->setFactory(&executionContext.getXObjectFactory());
+            
+            retxobj = XObjectPtr(xobj_sv);
+#else
+            warn("Can't return a blessed object.");
+            str = SvPV(result, len);
+            retxobj = executionContext.getXObjectFactory().createString(
+                XalanDOMString( str ));
+#endif
+        } else {
+            str = SvPV(result, len);
+            retxobj = executionContext.getXObjectFactory().createString(
+                XalanDOMString( str ));
+        }
 
-        //PerlIO_printf(PerlIO_stderr(), "str: %s, len: %d\n", str, len);
 
         PUTBACK;
         FREETMPS;
@@ -236,7 +281,7 @@ private:
 };
 
 
-MODULE = XML::Xalan::Transformer    PACKAGE = XML::Xalan::Transformer
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::Transformer
 PROTOTYPES: DISABLE
 
 XalanTransformer*
@@ -608,6 +653,164 @@ uninstall_external_function(self, nspace, func_name)
     CODE:
     self->uninstallExternalFunction(XalanDOMString(nspace), XalanDOMString(func_name));
 
+XalanDocumentBuilder*
+XalanTransformer::createDocumentBuilder()
+    PREINIT:
+    char *CLASS = "XML::Xalan::DocumentBuilder";
+
+void
+XalanTransformer::destroyDocumentBuilder(doc_builder)
+    XalanDocumentBuilder *doc_builder
+
 void
 XalanTransformer::DESTROY()
 
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DocumentBuilder
+PROTOTYPES: DISABLE
+
+ContentHandler*
+XalanDefaultDocumentBuilder::getContentHandler()
+    PREINIT:
+    char *CLASS = "XML::Xalan::ContentHandler";
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::ContentHandler
+PROTOTYPES: DISABLE
+
+XalanSourceTreeContentHandler*
+XalanSourceTreeContentHandler::new()
+
+void
+XalanSourceTreeContentHandler::startDocument()
+
+void
+XalanSourceTreeContentHandler::endDocument()
+
+void
+_start_element(self, uri, localname, qname, attributes)
+    XalanSourceTreeContentHandler *self
+    char *uri
+    char *localname
+    char *qname
+    SV *attributes
+    PREINIT:
+    I32 keylen;
+    HV *attrs, *attr; 
+    char *attr_name, *attr_value, *attr_namespace_uri, *attr_prefix, *attr_localname;
+    char *attr_type = "";
+    HE *attrs_entry = 0;
+    AttributesImpl xattrs;
+    CODE:
+    if( SvROK( attributes ) && (SvTYPE(SvRV(attributes)) == SVt_PVHV) )
+        attrs = (HV*)SvRV(attributes);
+    else {
+        warn("XML::Xalan::ContentHandler::_start_element(): attrs was not an HV ref");
+        attrs = newHV();
+    }
+
+    xattrs.clear();
+    hv_iterinit(attrs);
+    while (attrs_entry = hv_iternext(attrs)) {
+        /* deref an entry */
+        attr = (HV*)SvRV(hv_iterval(attrs, attrs_entry));
+
+        /* retrieve values and add them to AttributesImpl object */
+        if (hv_exists(attr, "Name", 4)) {
+            attr_name = SvPV(*hv_fetch(attr, "Name", 4, FALSE), PL_na);
+        } else 
+            attr_name = "";
+        if (hv_exists(attr, "Value", 5)) {
+            attr_value = SvPV(*hv_fetch(attr, "Value", 5, FALSE), PL_na);
+        } else 
+            attr_value = "";
+        if (hv_exists(attr, "NamespaceURI", 12)) {
+            attr_namespace_uri = SvPV(*hv_fetch(attr, "NamespaceURI", 12, FALSE), PL_na);
+        } else 
+            attr_namespace_uri = "";
+        if (hv_exists(attr, "Prefix", 6)) {
+            attr_prefix = SvPV(*hv_fetch(attr, "Prefix", 6, FALSE), PL_na);
+        } else 
+            attr_prefix = "";
+        if (hv_exists(attr, "LocalName", 9)) {
+            attr_localname = SvPV(*hv_fetch(attr, "LocalName", 9, FALSE), PL_na);
+        } else 
+            attr_localname = "";
+        
+        xattrs.addAttribute(
+            c_wstr(XalanDOMString(attr_namespace_uri)),
+            c_wstr(XalanDOMString(attr_localname)),
+            c_wstr(XalanDOMString(attr_name)),
+            c_wstr(XalanDOMString(attr_type)),
+            c_wstr(XalanDOMString(attr_value))
+        );
+    }
+    self->startElement(
+        c_wstr(XalanDOMString(uri)), c_wstr(XalanDOMString(localname)),
+        c_wstr(XalanDOMString(qname)), xattrs);
+
+void
+_end_element(self, uri, localname, qname)
+    XalanSourceTreeContentHandler *self
+    char *uri
+    char *localname
+    char *qname
+    CODE:
+    self->endElement(
+        c_wstr(XalanDOMString(uri)),
+        c_wstr(XalanDOMString(localname)),
+        c_wstr(XalanDOMString(qname))
+        );
+
+void
+_characters(self, chars)
+    XalanSourceTreeContentHandler *self
+    char *chars
+    CODE:
+    self->characters(
+        c_wstr(XalanDOMString(chars)), 
+        strlen(chars));
+
+void
+_ignorable_whitespace(self, chars)
+    XalanSourceTreeContentHandler *self
+    char *chars
+    CODE:
+    self->ignorableWhitespace(
+        c_wstr(XalanDOMString(chars)), 
+        strlen(chars));
+
+void
+_start_prefix_mapping(self, prefix, uri)
+    XalanSourceTreeContentHandler *self
+    char *prefix
+    char *uri
+    CODE:
+    self->startPrefixMapping(
+        c_wstr(XalanDOMString(prefix)), 
+        c_wstr(XalanDOMString(uri)));
+
+void
+_end_prefix_mapping(self, prefix)
+    XalanSourceTreeContentHandler *self
+    char *prefix
+    CODE:
+    self->endPrefixMapping(
+        c_wstr(XalanDOMString(prefix)));
+
+void
+_processing_instruction(self, target, data)
+    XalanSourceTreeContentHandler *self
+    char *target
+    char *data
+    CODE:
+    self->processingInstruction(
+        c_wstr(XalanDOMString(target)), 
+        c_wstr(XalanDOMString(data)));
+
+void
+_skipped_entitiy(self, name)
+    XalanSourceTreeContentHandler *self
+    char *name
+    CODE:
+    self->skippedEntity(
+        c_wstr(XalanDOMString(name)));
+  

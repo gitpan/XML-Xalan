@@ -3,12 +3,12 @@ use strict;
 use POSIX qw(strftime pow);
 
 BEGIN { plan tests => 4 }
-use XML::Xalan::Transformer;
+use XML::Xalan;
 
 my @files = (
-    '../samples/docs/foo.xml', 
-    '../samples/docs/external.xsl',
-    '../samples/docs/external.out');
+    './samples/docs/foo.xml', 
+    './samples/docs/external.xsl',
+    './samples/docs/external.out');
 
 my $tr = new XML::Xalan::Transformer;
 ok($tr);

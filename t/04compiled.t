@@ -1,12 +1,12 @@
 use Test;
 use strict;
 BEGIN { plan tests => 6 }
-use XML::Xalan::Transformer;
+use XML::Xalan;
 
 my @files = (
-    '../samples/docs/foo.xml', 
-    '../samples/docs/foo.xsl',
-    '../samples/docs/foo.out');
+    './samples/docs/foo.xml', 
+    './samples/docs/foo.xsl',
+    './samples/docs/foo.out');
 
 my $tr = new XML::Xalan::Transformer;
 ok($tr);

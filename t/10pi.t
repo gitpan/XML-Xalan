@@ -1,11 +1,11 @@
 use Test;
 BEGIN { plan tests => 3 }
-use XML::Xalan::Transformer;
+use XML::Xalan;
 
 my @files = (
-    '../samples/docs/pi.xml', 
-	undef,
-    '../samples/docs/foo.out');
+    './samples/docs/pi.xml', 
+    undef,
+    './samples/docs/foo.out');
 my $tr = new XML::Xalan::Transformer;
 ok($tr);
 my $res = $tr->transform_to_file(@files);

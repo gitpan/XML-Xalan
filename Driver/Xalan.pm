@@ -4,7 +4,7 @@ package Driver::Xalan;
 use Driver::BaseClass;
 @ISA = qw(Driver::BaseClass);
 
-use XML::Xalan::Transformer;
+use XML::Xalan;
 
 use vars qw(
         $tr

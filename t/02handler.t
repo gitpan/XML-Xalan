@@ -1,11 +1,11 @@
 use strict;
 use Test;
 BEGIN { plan tests => 2 }
-use XML::Xalan::Transformer;
+use XML::Xalan;
 
 my @files = (
-    '../samples/docs/foo.xml', 
-    '../samples/docs/foo.xsl',);
+    './samples/docs/foo.xml', 
+    './samples/docs/foo.xsl',);
 
 my $out_handler = sub {
     my ($ctx, $mesg) = @_;

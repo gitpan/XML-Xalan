@@ -1,40 +1,10 @@
-package XML::Xalan::Transformer;
-
-#
-#   Copyright (c) 2001 Edwin Pratomo
-#
-#   You may distribute under the terms of either the GNU General Public
-#   License or the Artistic License, as specified in the Perl README file,
-#   with the exception that it cannot be placed on a CD-ROM or similar media
-#   for commercial distribution without the prior approval of the author.
-#
-
-use strict;
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
-
-require Exporter;
-require DynaLoader;
-
-@ISA = qw(Exporter DynaLoader);
-@EXPORT = qw();
-$VERSION = '0.23';
-
-bootstrap XML::Xalan::Transformer $VERSION;
-XML::Xalan::Transformer::initialize();
-
-*errstr = \&XML::Xalan::Transformer::getLastError;
-
-1;
-__END__
-# Below is the stub of documentation for your module. You better edit it!
-
 =head1 NAME
 
 XML::Xalan::Transformer - Perl interface to XalanTransformer class
 
 =head1 SYNOPSIS
 
-  use XML::Xalan::Transformer;
+  use XML::Xalan;
 
   my $tr = new XML::Xalan::Transformer;
 
@@ -266,6 +236,15 @@ uninstall the square-root example above:
 
  $tr->uninstall_external_function($namespace, $func_name);
 
+=item $tr->create_document_builder()
+
+Returns an XML::Xalan::DocumentBuilder object. See the documentation for
+C<XML::Xalan::DocumentBuilder>.
+
+=item $tr->destroy_document_builder($document_builder)
+
+Destroy an XML::Xalan::DocumentBuilder object.
+
 =item $tr->errstr()
 
 Returns current error string.
@@ -305,6 +284,9 @@ For example:
  # now it's safe to use for another stylesheet
  $compiled = $tr->compile_stylesheet_file($another_stylesheet);
 
+Also, there's no destructor for C<XML::Xalan::ContentHandler> where the instance gets removed as the 
+C<XML::Xalan::DocumentBuilder> that created it is destroyed.
+
 =head1 TODO
 
 =over 4
@@ -327,5 +309,9 @@ Validation option on parsing.
 =head1 AUTHOR
 
 Edwin Pratomo, edpratomo@cpan.org
+
+=head1 SEE ALSO
+
+C<XML::Xalan::DocumentBuilder>(3).
 
 =cut

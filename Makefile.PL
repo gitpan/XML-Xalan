@@ -23,17 +23,21 @@ my $libs =<< "LIBS";
 LIBS
 
 WriteMakefile(
-    'NAME'	=> 'XML::Xalan',
-	'AUTHOR'	=> 'Edwin Pratomo (ed.pratomo@computer.org)',
-	'ABSTRACT'	=> 'Perl interface to XalanTransformer class',
-    'VERSION_FROM' => 'Xalan/Transformer.pm', # finds $VERSION
-	'linkext'	=>{LINKTYPE => 'static'},
+    'NAME'  => 'XML::Xalan',
+    'AUTHOR'    => 'Edwin Pratomo (edwin@poskanzer.org)',
+    'ABSTRACT'  => 'Perl interface to Xalan C++',
+    'VERSION_FROM' => 'Xalan.pm', # finds $VERSION
     'CC'    => 'c++', 
-	'LD'    => 'g++',
-#    'OPTIMIZE'  => '-O2',
-	'CCFLAGS'	=> '-instances=static',
-    'LIBS'	=> [$libs],   # e.g., '-lm' 
-    'DEFINE'	=> '-DLINUX -D_REENTRANT -DNDEBUG',     # e.g., '-DHAVE_SOMETHING' 
-    'INC'	=> $inc,     # e.g., '-I/usr/include/other' 
-#	'XSOPT' => '-C++',
+    'LD'    => 'g++',
+    'CCFLAGS'   => '-instances=static',
+    'LIBS'  => [$libs],   # e.g., '-lm' 
+#    'DEFINE'   => '-DLINUX -D_REENTRANT -DNDEBUG',     # e.g., '-DHAVE_SOMETHING' 
+    'DEFINE'    => '-DLINUX -DNDEBUG',     # e.g., '-DHAVE_SOMETHING' 
+    'INC'   => $inc,     # e.g., '-I/usr/include/other' 
+    'OBJECT'    => '$(O_FILES)',
 );
+
+sub MY::manifypods {
+    package MY;
+    my $str = shift->SUPER::manifypods(@_);
+}

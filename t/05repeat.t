@@ -1,11 +1,11 @@
 use Test;
 use strict;
 BEGIN { plan tests => 22 }
-use XML::Xalan::Transformer;
+use XML::Xalan;
 
 my $res;
-my $stylesheet = '../samples/docs/foo.xsl';
-my @docs = map { "../samples/docs/foo$_.xml" } (1..9);
+my $stylesheet = './samples/docs/foo.xsl';
+my @docs = map { "./samples/docs/foo$_.xml" } (1..9);
 
 my $tr = new XML::Xalan::Transformer;
 ok($tr);
