@@ -2,16 +2,16 @@ use Test;
 use strict;
 use POSIX qw(strftime pow);
 
-BEGIN { plan tests => 4 }
+BEGIN { plan tests => 1 }
 use XML::Xalan::Transformer;
 
+my $SKIPPED = 1;
 my @files = (
     '../samples/docs/foo.xml', 
     '../samples/docs/external.xsl',
     '../samples/docs/external.out');
 
 my $tr = new XML::Xalan::Transformer;
-ok($tr);
 
 my $parsed = $tr->parse_string(<<"XML");
 <?xml version="1.0"?>
@@ -20,7 +20,6 @@ my $parsed = $tr->parse_string(<<"XML");
   <now/>
 </doc>
 XML
-ok($parsed);
 
 my $namespace = "http://ExternalFunction.xalan-c++.xml.apache.org";
 my %functions = (
@@ -42,16 +41,26 @@ my %functions = (
     },
 );
 
-for (keys %functions) {
+skip($SKIPPED, sub {
 
-    $tr->install_external_function($namespace, $_, $functions{$_});
-}
+    for (1..100000) {
 
-my $res = $tr->transform_to_file($parsed, @files[1,2]);
-ok($res) or print STDERR $tr->errstr;
+        print "No: $_\n";
+        print "Installing ..\n";
 
-# now, uninstall 'asctime' function..
+        for (keys %functions) {
+            $tr->install_external_function($namespace, $_, $functions{$_});
+        }
 
-$tr->uninstall_external_function($namespace, 'asctime');
-$res = $tr->transform_to_file($parsed, @files[1,2]);
-ok($res) or print STDERR $tr->errstr;
+        print "Finished installing\n";
+
+        my $res = $tr->transform_to_file($parsed, @files[1,2]) or die $tr->errstr;
+
+        print "Finished transforming\n";
+        # now, uninstall 
+
+        $tr->uninstall_external_function($namespace, 'asctime');
+        $tr->uninstall_external_function($namespace, 'square-root');
+        $tr->uninstall_external_function($namespace, 'cube');
+    }
+});

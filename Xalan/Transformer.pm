@@ -17,7 +17,7 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw();
-$VERSION = '0.21';
+$VERSION = '0.22';
 
 bootstrap XML::Xalan::Transformer $VERSION;
 XML::Xalan::Transformer::initialize();
@@ -210,6 +210,11 @@ don't C<die()>, but you should return undef.
 
 Another example is a function to remove html tags:
 
+ use HTML::Parse;
+ use HTML::FormatText;
+ 
+ ...
+ 
  $tr->install_external_function($namespace, 'plain-text', 
      sub {
          my $html_text = shift;

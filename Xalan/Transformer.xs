@@ -131,6 +131,12 @@ public:
 		m_func_handler = newSVsv(func_handler);
     }
 
+	~UserDefinedFunction()
+	{
+		//PerlIO_printf(PerlIO_stderr(), "%s destroyed..\n", m_func_name);
+		delete m_func_name;
+		SvREFCNT_dec(m_func_handler);
+	}
     /**
      * Execute an XPath function object.  The function must return a valid
      * object.
@@ -216,7 +222,8 @@ public:
 #endif
     clone() const
     {
-        return new UserDefinedFunction(*this);
+        //return new UserDefinedFunction(*this);
+        return new UserDefinedFunction(m_func_name, m_func_handler);
     }
 
 private:

@@ -25,7 +25,7 @@ LIBS
 my $CC = 'g++';
 WriteMakefile(
     'NAME'	=> 'XML::Xalan::Transformer',
-	'AUTHOR'	=> 'Edwin Pratomo (ed.pratomo@computer.org)',
+	'AUTHOR'	=> 'Edwin Pratomo (edwin@poskanzer.org)',
 	'ABSTRACT'	=> 'Perl interface to XalanTransformer class',
     'VERSION_FROM' => 'Transformer.pm', # finds $VERSION
     'CC'    => 'c++', 
