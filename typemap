@@ -1,0 +1,63 @@
+TYPEMAP
+
+const char *            T_PV
+XalanTransformer *      O_OBJECT
+XSLTProcessorEnvSupportDefault * O_OBJECT_CPP
+XObjectFactoryDefault * O_OBJECT_CPP
+XPathFactoryDefault *   O_OBJECT_CPP
+
+StylesheetExecutionContextDefault * O_OBJECT
+StylesheetConstructionContextDefault * O_OBJECT
+StylesheetRoot *        O_OBJECT
+
+XalanSourceTreeDOMSupport    * O_OBJECT_CPP
+XalanSourceTreeParserLiaison * O_OBJECT_CPP
+XSLTEngineImpl *          O_OBJECT_CPP
+XObjectFactoryDefault *   O_OBJECT_CPP
+XPathFactoryDefault *     O_OBJECT_CPP
+
+XalanDocument *             O_OBJECT
+XercesDOMSupport *          O_OBJECT_CPP
+const DOM_Document *        O_OBJECT
+DOM_Document *              T_PACKED
+XercesParserLiaison *       O_OBJECT
+
+OUTPUT
+
+O_OBJECT
+    sv_setref_pv( $arg, CLASS, (void*)$var );
+
+O_OBJECT_CPP
+    sv_setref_pv( $arg, CLASS, (void*)$var );
+
+INPUT
+
+O_OBJECT
+    if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+        $var = ($type)SvIV((SV*)SvRV( $arg ));
+    else{
+        warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+        XSRETURN_UNDEF;
+    }
+
+O_OBJECT_CPP
+    if( SvROK($arg) ) {
+        if (SvTYPE(SvRV($arg)) == SVt_RV) {
+            SV *tmp = (SV*)SvRV( $arg );
+            if (sv_isobject(tmp) && (SvTYPE(SvRV(tmp)) == SVt_PVMG)) 
+                $var = ($type)SvIV((SV*)SvRV(tmp));
+            else {
+                warn( \"${Package}::$func_name() -- $var isn't ref to blessed SV ref\" );
+                XSRETURN_UNDEF;
+            }
+        } else if (sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG)) {
+            $var = ($type)SvIV((SV*)SvRV( $arg ));
+        } else {
+        warn( \"${Package}::$func_name() -- $var bukan blessed SV reference\" );
+        XSRETURN_UNDEF;
+        }
+    }
+    else{
+        warn( \"${Package}::$func_name() -- $var is not an SV reference\" );
+        XSRETURN_UNDEF;
+    }

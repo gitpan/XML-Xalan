@@ -1,0 +1,67 @@
+XML::Xalan --  Perl interface to Xalan, an XSLT processor by Apache XML
+Project.
+
+This is free software, you may use it and distribute it under the same
+terms as Perl itself. Copyright (c) 2001 Edwin Pratomo.
+
+DESCRIPTION:
+
+This distribution consists of three modules: XML::Xalan::Transformer,
+XML::Xalan, and XML::Xerces::ParserLiaison.
+
+XML::Xalan::Transformer is a straightforward interface to XalanTransformer 
+class, and XML::Xalan provides high-level, easy-to-use object oriented 
+interface to other Xalan C++ classes. XML::Xerces::ParserLiaison is required 
+in order to use XML::Xerces with XML::Xalan.
+
+From the Xalan-C++ project homepage:
+
+   Xalan-C++ (named after a rare musical instrument) implements the W3C
+   Recommendation 16 November 1999 XSL Transformations (XSLT) Version 1.0
+   and the XML Path Language (XPath) Version 1.0. XSLT is the first part
+   of the XSL stylesheet language for XML. 
+
+TESTED PLATFORMS:
+
+Perl 5.005_03 (Linux), egcs-c++ 1.1.2-30
+
+BUILD REQUIREMENTS:
+
+1.  An ANSI C++ compiler.  Builds are known to work with the GNU
+    compiler.  
+
+2.  Perl 5
+
+3.  The Apache Xalan C++ XSLT Processor version 1.1, which can be
+    downloaded from:
+
+       http://xml.apache.org/dist/xalan-c/
+
+    Choose one which suits your platform. For Linux, it's:
+
+       http://xml.apache.org/dist/xalan-c/Xalan-C_1_1-linux.tar.gz
+
+    The Xalan C++ distributions also comes with Xerces C++ version 1.4.
+    You'll need the library and header files from both Xalan C++ and 
+    Xerces C++.
+
+4.  Set XALANCROOT and XERCESCROOT environment variables to full paths
+    of Xalan and Xerces directories, respectively. Example:
+
+        export XALANCROOT=/opt/xalan
+        export XERCESCROOT=/opt/xerces
+
+5.  XML::Xerces version 1.3.3, available from:
+
+        http://xml.apache.org/dist/xerces-p/
+
+    This is optional, needed only if you want to feed a DOM tree built 
+    by XML::Xerces into an XML::Xalan object for transformation.
+
+BUILDING:
+
+    perl Makefile.PL
+    make
+    make test
+    make install
+
