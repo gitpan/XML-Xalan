@@ -17,7 +17,7 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw();
-$VERSION = '0.31';
+$VERSION = '0.32';
 bootstrap XML::Xalan $VERSION;
 
 package XML::Xalan::Transformer;

@@ -6,17 +6,9 @@ terms as Perl itself. Copyright (c) 2001 Edwin Pratomo.
 
 DESCRIPTION:
 
-Starting from version 0.20, this distribution contains only
-XML::Xalan::Transformer module, a straightforward interface to 
-XalanTransformer class. Since version 1.2.0 of Xalan, this class has been
-much improved, and now supports important features such as compiled
-stylesheet, parsed source, and user defined function. 
-
-In Xalan 1.1, XalanTransformer's features are quite minimal, so 
-XML::Xalan module was written to provide an alternative API which is more
-complete. But now with the current state of XalanTransformer, XML::Xalan 
-module which is harder to maintain (since the interfacing is done at lower
-level classes) seems to go nowhere, and I've decided to discontinue it. 
+XML::Xalan is a Perl interface to Xalan C++, a fast and XSLT 1.0 compliant 
+XSLT processor. Features supported are compiled stylesheet, parsed source, 
+Perl SAX2 handlers, and user defined extension functions. 
 
 From the Xalan-C++ project homepage:
 
@@ -27,16 +19,24 @@ From the Xalan-C++ project homepage:
 
 TESTED PLATFORMS:
 
-Perl 5.005_03 (Linux), egcs-c++ 1.1.2-30
+Linux RH 6.1, 6.2: Perl 5.005_03, egcs-c++ 1.1.2-30
+Windows NT: ActivePerl 5.6.1 Build 629, MSVC++ 6.0, SP3, Dinkumware VC++ fixes.
 
 BUILD REQUIREMENTS:
 
-1.  An ANSI C++ compiler.  Builds are known to work with the GNU
-    compiler.  
+1.  Linux: 
+
+       An ANSI C++ compiler.  Builds are known to work with the GNU
+       compiler.
+
+    Win32:   
+
+       MS Visual C++ 6.0, Service Pack 3 and Dinkumware VC++ fixes 
+       (http://www.dinkumware.com/vc_fixes.html).
 
 2.  Perl 5
 
-3.  The Apache Xalan C++ XSLT Processor version 1.1, which can be
+3.  The Apache Xalan C++ XSLT Processor version 1.2, which can be
     downloaded from:
 
        http://xml.apache.org/dist/xalan-c/
@@ -49,7 +49,7 @@ BUILD REQUIREMENTS:
     You'll need the library and header files from both Xalan C++ and 
     Xerces C++.
 
-4.  Set XALANCROOT and XERCESCROOT environment variables to full paths
+4.  On Linux, set XALANCROOT and XERCESCROOT environment variables to full paths
     of Xalan and Xerces directories, respectively. Example:
 
         export XALANCROOT=/opt/xalan
@@ -57,8 +57,15 @@ BUILD REQUIREMENTS:
 
 BUILDING:
 
+Linux:
     perl Makefile.PL
     make
     make test
     make install
+
+Win32:
+    perl Makefile.PL
+    nmake
+    nmake test
+    nmake install
 

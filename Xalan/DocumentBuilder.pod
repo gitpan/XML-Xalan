@@ -44,7 +44,7 @@ Returns an C<XML::Xalan::LexicalHandler> object.
 
 =back
 
-=head1 REUSABILITY
+=head1 ON OBJECT REUSABILITY
 
 C<XML::Xalan::DocumentBuilder> object is only reusable with the B<same input
 source>. This means the following snippet won't work:

@@ -238,8 +238,10 @@ uninstall the square-root example above:
 
 =item $tr->create_document_builder()
 
-Returns an XML::Xalan::DocumentBuilder object. See the documentation for
-C<XML::Xalan::DocumentBuilder>.
+Returns an XML::Xalan::DocumentBuilder object. This object allows an C<XML::Xalan::Transformer> 
+object to transform input sources parsed by B<any Perl SAX2 conformant parsers>.
+
+See the C<XML::Xalan::DocumentBuilder> pod documentation for usage info.
 
 =item $tr->destroy_document_builder($document_builder)
 
@@ -298,11 +300,10 @@ parameters can be passed at once.
 
 =item *
 
-Auto configure for various platforms.
+Validation option on parsing. 
 
-=item *
-
-Validation option on parsing.
+At this moment, if you need validation capability, you can use C<XML::Xalan::DocumentBuilder> to make use any 
+validating XML parser which supports Perl SAX2, such as C<XML::LibXML>.
 
 =back
 

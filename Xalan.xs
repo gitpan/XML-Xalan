@@ -9,21 +9,6 @@
 
 */
 
-#ifdef __cplusplus
-    extern "C" {
-#endif
-
-#include "EXTERN.h"
-#include "perl.h"
-#include "XSUB.h"
-
-#ifdef __cplusplus
-    }
-#endif
-
-#undef assert
-#undef list
-
 #include <Include/PlatformDefinitions.hpp>
 
 #if defined(XALAN_OLD_STREAM_HEADERS)
@@ -53,6 +38,10 @@
 #include <XPath/Function.hpp>
 #include <XPath/XObjectFactory.hpp>
 
+#include "EXTERN.h"
+#include "perl.h"
+#include "XSUB.h"
+
 #ifdef _EXPERIMENTAL
     #include "XSv.hpp"
 #endif
@@ -67,10 +56,6 @@ static HV *out_handler_mapping = (HV*)NULL;
  * unsigned long buffer_length contains the buffer's length
  * void *out_handle is the filehandle
  */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* several notes.. */
 /*
@@ -131,10 +116,6 @@ flush_handler_internal(void *buffer)
     FREETMPS;
     LEAVE;
 }
-
-#ifdef __cplusplus
-}
-#endif
 
 
 class UserDefinedFunction : public Function
@@ -332,6 +313,9 @@ compile_stylesheet_string(self, xslstring)
     char *CLASS = "XML::Xalan::CompiledStylesheet";
     CODE:
     const XalanCompiledStylesheet*  theCompiledStylesheet = 0;
+    #if !defined(XALAN_NO_NAMESPACES)
+    using std::istrstream;
+    #endif
     istrstream  theXSLStream(xslstring, strlen(xslstring));
 
     status = self->compileStylesheet(&theXSLStream, theCompiledStylesheet);
@@ -374,6 +358,9 @@ parse_string(self, xmlstring)
     char *CLASS = "XML::Xalan::ParsedSource";
     CODE:
     const XalanParsedSource*  theParsedSource = 0;
+    #if !defined(XALAN_NO_NAMESPACES)
+    using std::istrstream;
+    #endif
     istrstream theXMLStream(xmlstring, strlen(xmlstring));
 
     status = self->parseSource(&theXMLStream, theParsedSource);
