@@ -1,7 +1,7 @@
 package XML::Xalan;
 
 #
-#   Copyright (c) 2001 Edwin Pratomo
+#   Copyright (c) 2001-2002 Edwin Pratomo
 #
 #   You may distribute under the terms of either the GNU General Public
 #   License or the Artistic License, as specified in the Perl README file,
@@ -17,7 +17,7 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 
-$VERSION = '0.42';
+$VERSION = '0.43';
 bootstrap XML::Xalan $VERSION;
 
 @XML::Xalan::DOM::Document::ISA                 = "XML::Xalan::DOM::Node";
@@ -259,7 +259,7 @@ XML::Xalan - Perl interface to Xalan C++
 
 =head1 DESCRIPTION
 
-Perl interface to the Xalan C++ version 1.2. 
+Perl interface to the Xalan C++ version 1.3. 
 See C<XML::Xalan::Transformer> documentation for further information.
 
 =head1 AUTHOR

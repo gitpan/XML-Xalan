@@ -1,6 +1,6 @@
 /* 
 
-   Copyright (c) 2001  Edwin Pratomo
+   Copyright (c) 2001-2002  Edwin Pratomo
 
    You may distribute under the terms of either the GNU General Public
    License or the Artistic License, as specified in the Perl README file,

@@ -1,6 +1,6 @@
 
 #
-#   Copyright (c) 2001 Edwin Pratomo
+#   Copyright (c) 2001-2002 Edwin Pratomo
 #
 #   You may distribute under the terms of either the GNU General Public
 #   License or the Artistic License, as specified in the Perl README file,
@@ -105,7 +105,7 @@ DEATH
 
     $config{INC}        = "-I$ENV{XALANCROOT}/src -I$ENV{XERCESCROOT}/include ";
     $config{LIBS}       =<< "LIBS";
--lc -L$ENV{XALANCROOT}/lib -lxalan-c1_2  -L/usr/lib
+-lc -L$ENV{XALANCROOT}/lib -lxalan-c1_3  -L/usr/lib
 -L/usr/local/lib
 LIBS
     $config{DEFINE}     = '-DLINUX -D_REENTRANT -DNDEBUG -D_EXPERIMENTAL';

@@ -2,7 +2,7 @@ XML::Xalan --  Perl interface to Xalan, an XSLT processor by Apache XML
 Project.
 
 This is free software, you may use it and distribute it under the same
-terms as Perl itself. Copyright (c) 2001 Edwin Pratomo.
+terms as Perl itself. Copyright (c) 2001-2002 Edwin Pratomo.
 
 DESCRIPTION:
 
@@ -36,16 +36,16 @@ BUILD REQUIREMENTS:
 
 2.  Perl 5
 
-3.  The Apache Xalan C++ XSLT Processor version 1.2, which can be
+3.  The Apache Xalan C++ XSLT Processor version 1.3, which can be
     downloaded from:
 
        http://xml.apache.org/dist/xalan-c/
 
     Choose one which suits your platform. For Linux, it's:
 
-       http://xml.apache.org/dist/xalan-c/Xalan-C_1_2-linux.tar.gz
+       http://xml.apache.org/dist/xalan-c/Xalan-C_1_3-linux.tar.gz
 
-    The Xalan C++ distributions also comes with Xerces C++ version 1.5.1.
+    The Xalan C++ distributions also comes with Xerces C++ version 1.6.0.
     You'll need the library and header files from both Xalan C++ and 
     Xerces C++.
 

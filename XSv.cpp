@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001  Edwin Pratomo
+ * Copyright (c) 2001-2002  Edwin Pratomo
  *
  */
 

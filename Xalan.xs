@@ -1,6 +1,6 @@
 /* 
 
-   Copyright (c) 2001  Edwin Pratomo
+   Copyright (c) 2001-2002  Edwin Pratomo
 
    You may distribute under the terms of either the GNU General Public
    License or the Artistic License, as specified in the Perl README file,
@@ -143,10 +143,12 @@ static HV *out_handler_mapping = (HV*)NULL;
     typedef unsigned short  XalanDOMChar;
 */
 
-unsigned long
+//unsigned long
+CallbackSizeType
 out_handler_internal(
     const char *buffer, 
-    unsigned long buffer_length, 
+//    unsigned long buffer_length, 
+    CallbackSizeType buffer_length, 
     void *out_handle) 
 {
     dSP;
@@ -225,8 +227,9 @@ public:
     execute(
             XPathExecutionContext&          executionContext,
             XalanNode*                      context,
-            int                             opPos,
-            const XObjectArgVectorType&     args)
+//            int                             opPos,
+            const XObjectArgVectorType&     args,
+            const Locator*                  locator) const
     {
         dSP;
 
@@ -394,6 +397,13 @@ XALAN_LEAVE:
     clone() const
     {
         return new Xalan_ExtensionFunction(m_func_name, m_func_handler, m_auto_cast, m_with_context);
+    }
+
+protected:
+    const XalanDOMString
+    getError() const
+    {
+        return XALAN_STATIC_UCODE_STRING(m_func_name);
     }
 
 private:
