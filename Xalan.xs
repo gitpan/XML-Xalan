@@ -33,7 +33,9 @@
 #endif 
 
 #include <sax/SAXException.hpp>
+#include <sax/DTDHandler.hpp>
 #include <sax2/ContentHandler.hpp>
+#include <sax2/LexicalHandler.hpp>
 #include <XalanDOM/XalanDOMException.hpp>
 
 #include <util/PlatformUtils.hpp>
@@ -196,11 +198,12 @@ public:
             //PerlIO_printf(PerlIO_stderr(), "%s: arg type: %d\n", m_func_name, args[i]->getType());
 
             if (args[i]->getType() == 7) {
+#ifdef _EXPERIMENTAL
+                //XSv tmp_sv(args[i]);
+                XPUSHs(sv_2mortal( newSVsv((SV*)(args[i]->getAnyData())) ));
+#else
                 warn("User defined XObject type isn't implemented yet.");
-                /* unimplemented
-                XSv tmp_sv(args[i]);
-                XPUSHs(sv_2mortal( newSVsv((XSv*)args[i]->getSV) ));
-                */
+#endif
             } else {
 
                 tmpDOMString = args[i]->str();
@@ -673,6 +676,16 @@ XalanDefaultDocumentBuilder::getContentHandler()
     PREINIT:
     char *CLASS = "XML::Xalan::ContentHandler";
 
+DTDHandler*
+XalanDefaultDocumentBuilder::getDTDHandler()
+    PREINIT:
+    char *CLASS = "XML::Xalan::DTDHandler";
+
+LexicalHandler*
+XalanDefaultDocumentBuilder::getLexicalHandler()
+    PREINIT:
+    char *CLASS = "XML::Xalan::LexicalHandler";
+
 MODULE = XML::Xalan    PACKAGE = XML::Xalan::ContentHandler
 PROTOTYPES: DISABLE
 
@@ -698,6 +711,8 @@ _start_element(self, uri, localname, qname, attributes)
     char *attr_name, *attr_value, *attr_namespace_uri, *attr_prefix, *attr_localname;
     char *attr_type = "";
     HE *attrs_entry = 0;
+    SV **val_ptr;
+    STRLEN len;
     AttributesImpl xattrs;
     CODE:
     if( SvROK( attributes ) && (SvTYPE(SvRV(attributes)) == SVt_PVHV) )
@@ -715,23 +730,28 @@ _start_element(self, uri, localname, qname, attributes)
 
         /* retrieve values and add them to AttributesImpl object */
         if (hv_exists(attr, "Name", 4)) {
-            attr_name = SvPV(*hv_fetch(attr, "Name", 4, FALSE), PL_na);
+            val_ptr = hv_fetch(attr, "Name", 4, FALSE);
+            attr_name = SvOK(*val_ptr) ? SvPV(*val_ptr, len) : "";
         } else 
             attr_name = "";
         if (hv_exists(attr, "Value", 5)) {
-            attr_value = SvPV(*hv_fetch(attr, "Value", 5, FALSE), PL_na);
+            val_ptr = hv_fetch(attr, "Value", 5, FALSE);
+            attr_value = SvOK(*val_ptr) ? SvPV(*val_ptr, len) : "";
         } else 
             attr_value = "";
         if (hv_exists(attr, "NamespaceURI", 12)) {
-            attr_namespace_uri = SvPV(*hv_fetch(attr, "NamespaceURI", 12, FALSE), PL_na);
+            val_ptr = hv_fetch(attr, "NamespaceURI", 12, FALSE);
+            attr_namespace_uri = SvOK(*val_ptr) ? SvPV(*val_ptr, len) : "";
         } else 
             attr_namespace_uri = "";
         if (hv_exists(attr, "Prefix", 6)) {
-            attr_prefix = SvPV(*hv_fetch(attr, "Prefix", 6, FALSE), PL_na);
+            val_ptr = hv_fetch(attr, "Prefix", 6, FALSE);
+            attr_prefix = SvOK(*val_ptr) ? SvPV(*val_ptr, len) : "";
         } else 
             attr_prefix = "";
         if (hv_exists(attr, "LocalName", 9)) {
-            attr_localname = SvPV(*hv_fetch(attr, "LocalName", 9, FALSE), PL_na);
+            val_ptr = hv_fetch(attr, "LocalName", 9, FALSE);
+            attr_localname = SvOK(*val_ptr) ? SvPV(*val_ptr, len) : "";
         } else 
             attr_localname = "";
         
@@ -814,3 +834,81 @@ _skipped_entitiy(self, name)
     self->skippedEntity(
         c_wstr(XalanDOMString(name)));
   
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DTDHandler
+PROTOTYPES: DISABLE
+
+void
+_notation_decl(self, name, public_id, system_id)
+    XalanSourceTreeContentHandler *self
+    char *name
+    char *public_id
+    char *system_id
+    CODE:
+    self->notationDecl(
+        c_wstr(XalanDOMString(name)),
+        c_wstr(XalanDOMString(public_id)),
+        c_wstr(XalanDOMString(system_id)));
+
+void
+_unparsed_entitiy_decl(self, name, public_id, system_id, notation_name)
+    XalanSourceTreeContentHandler *self
+    char *name
+    char *public_id
+    char *system_id
+    char *notation_name
+    CODE:
+    self->unparsedEntityDecl(
+        c_wstr(XalanDOMString(name)),
+        c_wstr(XalanDOMString(public_id)),
+        c_wstr(XalanDOMString(system_id)),
+        c_wstr(XalanDOMString(notation_name)));
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::LexicalHandler
+PROTOTYPES: DISABLE
+
+void
+_start_dtd(self, name, public_id, system_id)
+    XalanSourceTreeContentHandler *self
+    char *name
+    char *public_id
+    char *system_id
+    CODE:
+    self->startDTD(
+        c_wstr(XalanDOMString(name)),
+        c_wstr(XalanDOMString(public_id)),
+        c_wstr(XalanDOMString(system_id)));
+
+void
+XalanSourceTreeContentHandler::endDTD()
+
+void
+_start_entity(self, name)
+    XalanSourceTreeContentHandler *self
+    char *name
+    CODE:
+    self->startEntity(
+        c_wstr(XalanDOMString(name)));
+
+void
+_end_entity(self, name)
+    XalanSourceTreeContentHandler *self
+    char *name
+    CODE:
+    self->startEntity(
+        c_wstr(XalanDOMString(name)));
+
+void
+XalanSourceTreeContentHandler::startCDATA()
+
+void
+XalanSourceTreeContentHandler::endCDATA()
+
+void
+_comment(self, chars)
+    XalanSourceTreeContentHandler *self
+    char *chars
+    CODE:
+    self->comment(
+        c_wstr(XalanDOMString(chars)), 
+        strlen(chars));
+

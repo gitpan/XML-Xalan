@@ -17,7 +17,7 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw();
-$VERSION = '0.30';
+$VERSION = '0.31';
 bootstrap XML::Xalan $VERSION;
 
 package XML::Xalan::Transformer;
@@ -45,14 +45,14 @@ sub end_document {
 sub start_element {
     my ($self, $el) = @_;
     $self->_start_element(
-        $el->{NamespaceURI}, $el->{LocalName},
+        $el->{NamespaceURI} || '', $el->{LocalName},
         $el->{Name}, $el->{Attributes}); 
 }
 
 sub end_element {
     my ($self, $el) = @_;
     $self->_end_element(
-        $el->{NamespaceURI}, $el->{LocalName},
+        $el->{NamespaceURI} || '', $el->{LocalName},
         $el->{Name});
 }
 
@@ -90,6 +90,62 @@ sub processing_instruction {
 sub skipped_entity {
     my ($self, $ent) = @_;
     $self->_skipped_entitity($ent->{Name});
+}
+
+package XML::Xalan::DTDHandler;
+
+sub notation_decl {
+    my ($self, $notation) = @_;
+    $self->_notation_decl(
+        $notation->{Name},
+        $notation->{PublicId},
+        $notation->{SystemId});
+}
+
+sub unparsed_entity_decl {
+    my ($self, $ent) = @_;
+    $self->_unparsed_entity_decl(
+        $ent->{Name},
+        $ent->{PublicId},
+        $ent->{SystemId},
+        $ent->{Notation});
+}
+
+package XML::Xalan::LexicalHandler;
+
+sub start_dtd {
+    my ($self, $dtd) = @_;
+    $self->_start_dtd(
+        $dtd->{Name},
+        $dtd->{PublicId},
+        $dtd->{SystemId});
+}
+
+sub end_dtd {
+    shift->endDTD();
+}
+
+sub start_entity {
+    my ($self, $ent) = @_;
+    $self->_start_entity($ent->{Name});
+}
+
+sub end_entity {
+    my ($self, $ent) = @_;
+    $self->_end_entity($ent->{Name});
+}
+
+sub start_cdata {
+    shift->startCDATA();
+}
+
+sub end_cdata {
+    shift->endCDATA();
+}
+
+sub comment {
+    my ($self, $comment) = @_;
+    $self->_comment($comment->{Data});
 }
 
 1;

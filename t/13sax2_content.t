@@ -2,7 +2,6 @@ use Test;
 use strict;
 BEGIN { plan tests => 7 }
 use XML::Xalan;
-use IO::File;
 
 my @files = (
     './samples/docs/sax2.xml', 
@@ -29,19 +28,20 @@ skip($SKIPPED, sub {
         Handler => $ch);
 });
 
-# create filehandle and parse it
-my $file = IO::File->new($files[0]);
-ok($file);
-
 skip($SKIPPED, sub {
-    $p->parse_file($file);
+    $p->parse_uri($files[0]);
     1;
 });
 
 skip($SKIPPED, sub {
     my $res = $tr->transform_to_file($db, @files[1,2]);
-    $tr->destroy_doc_builder($db);
     $res;
 });
 
+# reuse and destroy the doc builder
+skip($SKIPPED, sub {
+    my $res = $tr->transform_to_file($db, @files[1,2]);
+    $tr->destroy_doc_builder($db);
+    $res;
+});
 

@@ -38,6 +38,8 @@ XalanDocumentBuilder* O_OBJECT
 XalanDefaultDocumentBuilder* O_OBJECT
 XalanSourceTreeContentHandler* O_OBJECT
 ContentHandler* O_OBJECT
+DTDHandler* O_OBJECT
+LexicalHandler* O_OBJECT
 
 OUTPUT
 

@@ -1,5 +1,15 @@
 Revision history for Perl extension XML::Xalan.
 
+Nov 26,2001
+- Fixed warning inside content handler
+
+Nov 25, 2001
+- Fixed documentation for XML::Xalan::DocumentBuilder
+- Added test in sax2_content.t
+
+Nov 16, 2001
+- Added dtd handler and lexical handler support.
+
 Nov 7, 2001
 - Major restructuring. 
 - Added SAX2 content handler support. 

@@ -31,8 +31,8 @@ WriteMakefile(
     'LD'    => 'g++',
     'CCFLAGS'   => '-instances=static',
     'LIBS'  => [$libs],   # e.g., '-lm' 
-#    'DEFINE'   => '-DLINUX -D_REENTRANT -DNDEBUG',     # e.g., '-DHAVE_SOMETHING' 
-    'DEFINE'    => '-DLINUX -DNDEBUG',     # e.g., '-DHAVE_SOMETHING' 
+#    'DEFINE'   => '-DLINUX -D_REENTRANT -DNDEBUG -D_EXPERIMENTAL',     # e.g., '-DHAVE_SOMETHING' 
+    'DEFINE'    => '-DLINUX -D_REENTRANT -DNDEBUG',     # e.g., '-DHAVE_SOMETHING' 
     'INC'   => $inc,     # e.g., '-I/usr/include/other' 
     'OBJECT'    => '$(O_FILES)',
 );
