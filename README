@@ -6,13 +6,17 @@ terms as Perl itself. Copyright (c) 2001 Edwin Pratomo.
 
 DESCRIPTION:
 
-This distribution consists of three modules: XML::Xalan::Transformer,
-XML::Xalan, and XML::Xerces::ParserLiaison.
+Starting from version 0.20, this distribution contains only
+XML::Xalan::Transformer module, a straightforward interface to 
+XalanTransformer class. Since version 1.2.0 of Xalan, this class has been
+much improved, and now supports important features such as compiled
+stylesheet, parsed source, and user defined function. 
 
-XML::Xalan::Transformer is a straightforward interface to XalanTransformer 
-class, and XML::Xalan provides high-level, easy-to-use object oriented 
-interface to other Xalan C++ classes. XML::Xerces::ParserLiaison is required 
-in order to use XML::Xerces with XML::Xalan.
+In Xalan 1.1, XalanTransformer's features are quite minimal, so 
+XML::Xalan module was written to provide an alternative API which is more
+complete. But now with the current state of XalanTransformer, XML::Xalan 
+module which is harder to maintain (since the interfacing is done at lower
+level classes) seems to go nowhere, and I've decided to discontinue it. 
 
 From the Xalan-C++ project homepage:
 
@@ -50,13 +54,6 @@ BUILD REQUIREMENTS:
 
         export XALANCROOT=/opt/xalan
         export XERCESCROOT=/opt/xerces
-
-5.  XML::Xerces version 1.5.x, available from:
-
-        http://xml.apache.org/dist/xerces-p/
-
-    This is optional, needed only if you want to feed a DOM tree built 
-    by XML::Xerces into an XML::Xalan object for transformation.
 
 BUILDING:
 

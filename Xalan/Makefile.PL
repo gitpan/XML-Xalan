@@ -22,6 +22,7 @@ my $libs =<< "LIBS";
 -L/usr/local/lib
 LIBS
 
+my $CC = 'g++';
 WriteMakefile(
     'NAME'	=> 'XML::Xalan::Transformer',
 	'AUTHOR'	=> 'Edwin Pratomo (ed.pratomo@computer.org)',
@@ -29,10 +30,13 @@ WriteMakefile(
     'VERSION_FROM' => 'Transformer.pm', # finds $VERSION
     'CC'    => 'c++', 
 	'LD'    => 'g++',
-    'OPTIMIZE'  => '-O2',
+#    'CC'    => $CC, 
+#	'LD'    => '$(CC)',
+#    'OPTIMIZE'  => '-O2',
 	'CCFLAGS'	=> '-instances=static',
     'LIBS'	=> [$libs],   # e.g., '-lm' 
     'DEFINE'	=> '-DLINUX -D_REENTRANT -DNDEBUG',     # e.g., '-DHAVE_SOMETHING' 
     'INC'	=> $inc,     # e.g., '-I/usr/include/other' 
+#	'XSOPT' => '-C++',
 #	'TEST_FILES' => 't/*.t',
 );

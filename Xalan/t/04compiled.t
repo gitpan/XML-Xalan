@@ -1,6 +1,6 @@
 use Test;
 use strict;
-BEGIN { plan tests => 5 }
+BEGIN { plan tests => 6 }
 use XML::Xalan::Transformer;
 
 my @files = (
@@ -15,6 +15,9 @@ my $compiled = $tr->compile_stylesheet_file($files[1]);
 ok(defined $compiled);
 
 my $res = $tr->transform_to_file($files[0], $compiled, $files[2]);
+ok($res);
+
+$res = $tr->destroy_stylesheet($compiled);
 ok($res);
 
 $compiled = $tr->compile_stylesheet_string(<<"XSLT");

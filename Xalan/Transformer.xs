@@ -41,6 +41,10 @@
 #include <XalanSourceTree/XalanSourceTreeParserLiaison.hpp>
 
 #include <XalanTransformer/XalanTransformer.hpp>
+#include <XalanTransformer/XalanCompiledStylesheetDefault.hpp>
+
+#include <XPath/Function.hpp>
+#include <XPath/XObjectFactory.hpp>
 
 static SV *global_flush_handler = (SV*)NULL;
 static HV *out_handler_mapping = (HV*)NULL;
@@ -56,6 +60,11 @@ static HV *out_handler_mapping = (HV*)NULL;
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/*
+    ./XPath/XPathExecutionContext.hpp:      
+    typedef std::vector<XObjectPtr> XObjectArgVectorType;
+*/
 
 unsigned long
 out_handler_internal(
@@ -108,6 +117,122 @@ flush_handler_internal(void *buffer)
 #ifdef __cplusplus
 }
 #endif
+
+
+class UserDefinedFunction : public Function
+{
+public:
+    UserDefinedFunction(
+        const char* func_name, 
+        SV *func_handler):m_func_handler(func_handler) 
+    {
+        m_func_name = new char[strlen(func_name) + 1];
+        strcpy(m_func_name, func_name);
+    }
+
+    /**
+     * Execute an XPath function object.  The function must return a valid
+     * object.
+     *
+     * @param executionContext executing context
+     * @param context          current context node
+     * @param opPos            current op position
+     * @param args             vector of pointers to XObject arguments
+     * @return                 pointer to the result XObject
+     */
+    virtual XObjectPtr
+    execute(
+            XPathExecutionContext&          executionContext,
+            XalanNode*                      context,
+            int                             /* opPos */,
+            const XObjectArgVectorType&     args)
+    {
+        dSP;
+
+        int i, j;
+        const XObjectPtr *xobj;
+        XObjectPtr retxobj;
+        int cnt;
+        SV *result;
+        char *str, *temp_str;
+        STRLEN len;
+        XalanDOMString tmpDOMString;
+
+        if (args.size() != 1)
+        {
+            //executionContext.error("The user defined function takes one argument!", context);
+        }
+
+        assert(args[0].null() == false);
+
+//      return executionContext.getXObjectFactory().createNumber(sqrt(args[0]->num()));
+//      return executionContext.getXObjectFactory().createString(XalanDOMString(theTimeString));
+
+        ENTER;
+        SAVETMPS;
+
+        PUSHMARK(SP);
+        for (i = 0; i < args.size(); i++) {
+            tmpDOMString = args[i]->str();
+            temp_str = new char[tmpDOMString.length() + 1];
+            for (j = 0; j < tmpDOMString.length(); j++) {
+                *(temp_str + j) = tmpDOMString[j];
+            }
+            XPUSHs(sv_2mortal( newSVpv(temp_str, tmpDOMString.length()) ));
+            delete temp_str;
+        }
+
+//        for (xobj = args.begin(); xobj != args.end(); ++xobj) {
+//            XPUSHs(sv_2mortal( newSVpv((char*)((*xobj)->str().data()), 0) ));
+//        }
+        PUTBACK;
+
+        cnt = perl_call_sv(m_func_handler, G_SCALAR);
+
+        SPAGAIN;
+
+        if (cnt != 1)
+            executionContext.error("Callback must return a scalar!", context);
+
+        result = POPs;    
+
+        if (!SvOK(result)) 
+            executionContext.error("Failed callback!", context);
+
+        str = SvPV(result, len);
+
+        retxobj = executionContext.getXObjectFactory().createString(
+            XalanDOMString( str ));
+
+        //PerlIO_printf(PerlIO_stderr(), "str: %s, len: %d\n", str, len);
+
+        PUTBACK;
+        FREETMPS;
+        LEAVE;
+
+        return retxobj;
+    }
+
+    /**
+     * Create a copy of the function object.
+     *
+     * @return pointer to the new object
+     */
+#if defined(XALAN_NO_COVARIANT_RETURN_TYPE)
+    virtual Function*
+#else
+    virtual UserDefinedFunction*
+#endif
+    clone() const
+    {
+        return new UserDefinedFunction(*this);
+    }
+
+private:
+    char *m_func_name;
+    SV *m_func_handler;
+};
+
 
 MODULE = XML::Xalan::Transformer    PACKAGE = XML::Xalan::Transformer
 PROTOTYPES: DISABLE
@@ -266,18 +391,28 @@ transform_to_handler(self, xmlsource, stylesheet, out_handle, out_handler, ...)
             self->transform(
                 *parsed_source, compiled_stylesheet, (SV*)out_handle, 
                 out_handler_internal);
-    } else {
+    } else if (SvOK(stylesheet)) {
+
         xslfile = (const char *)SvPV(stylesheet,PL_na);
         status = items > 5 ? 
             self->transform(
                 xmlfile, xslfile, (SV*)out_handle, 
-                out_handler_internal, flush_handler_internal)
+                out_handler_internal)
             :
             self->transform(
                 xmlfile, xslfile, (SV*)out_handle, 
                 out_handler_internal);
-    }
+    } else {
+        status = items > 5 ? 
+            self->transform(
+                xmlfile, (SV*)out_handle, 
+                out_handler_internal, flush_handler_internal)
+            :
+            self->transform(
+                xmlfile, (SV*)out_handle, 
+                out_handler_internal);
 
+    }
     hv_delete(out_handler_mapping, key, len, G_DISCARD);
     if (status == 0) 
         XSRETURN_YES;
@@ -310,12 +445,19 @@ transform_to_file(self, xmlsource, stylesheet, outfile)
         ret = parsed_source ? 
         self->transform(*parsed_source, compiled_stylesheet, outfile) :
         self->transform(xmlfile, compiled_stylesheet, outfile);
-    } else {
+    } else if (SvOK(stylesheet)) {
         xslfile = (const char *)SvPV(stylesheet,PL_na);
         ret = parsed_source ? 
         self->transform(*parsed_source, xslfile, outfile) :
         self->transform(xmlfile, xslfile, outfile);
+    } else {
+        if (parsed_source) {
+            warn("Stylesheet is undef, accepting XML source with XSLT processing instruction\n ");
+            XSRETURN_UNDEF;
+        }
+        ret = self->transform(xmlfile, outfile);
     }
+
     if (ret == 0) 
         XSRETURN_YES;
     else
@@ -352,7 +494,8 @@ transform_to_data(self, xmlsource, stylesheet)
         self->transform(xmlfile, compiled_stylesheet, 
             theOutputStream);
 
-    } else {
+    } else if (SvOK(stylesheet)) {
+
         xslfile = (const char *)SvPV(stylesheet,PL_na);
         ret = parsed_source ? 
         self->transform(*parsed_source, xslfile, 
@@ -360,8 +503,14 @@ transform_to_data(self, xmlsource, stylesheet)
         :
         self->transform(xmlfile, xslfile, 
             theOutputStream);
-    }
+    } else {
+        if (parsed_source) {
+            warn("Stylesheet is undef, accepting XML source with XSLT processing instruction\n ");
+            XSRETURN_UNDEF;
+        }
+        ret = self->transform(xmlfile, theOutputStream);
 
+    }
     theOutputStream << '\0';
     //PerlIO_puts((PerlIO*)IoIFP( sv_2io(fh) ), theOutputStream.str());
     if (ret == 0) 
@@ -394,12 +543,40 @@ const char*
 XalanTransformer::getLastError()
  
 int
-XalanTransformer::destroyStylesheet(compiledStylesheet)
-    const XalanCompiledStylesheet *compiledStylesheet
+destroy_stylesheet(self, compiled_stylesheet)
+    XalanTransformer *self
+    const XalanCompiledStylesheet *compiled_stylesheet
+    PREINIT:
+    int ret;
+    CODE:
+    ret = self->destroyStylesheet(compiled_stylesheet);
+    if (ret == 0)
+        XSRETURN_YES;
+    else 
+        XSRETURN_UNDEF;
 
 int
-XalanTransformer::destroyParsedSource(parsedSource)
-    const XalanParsedSource *parsedSource
+destroy_parsed_source(self, parsed_source)
+    XalanTransformer *self
+    const XalanParsedSource *parsed_source
+    PREINIT:
+    int ret;
+    CODE:
+    ret = self->destroyParsedSource(parsed_source);
+    if (ret == 0)
+        XSRETURN_YES;
+    else 
+        XSRETURN_UNDEF;
+
+void
+install_external_function(self, nspace, func_name, func_handler)
+    XalanTransformer *self
+    const char *nspace
+    const char *func_name
+    SV *func_handler
+    CODE:
+    self->installExternalFunction(XalanDOMString(nspace), XalanDOMString(func_name), UserDefinedFunction(func_name, func_handler));
 
 void
 XalanTransformer::DESTROY()
+
