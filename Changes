@@ -1,5 +1,9 @@
 Revision history for Perl extension XML::Xalan.
 
+Nov 1, 2001
+- Fixed locked-up problem in transform_to_data()
+- No memory leak tested in transform_to_data(). 
+
 Oct 25, 2001
 - Memory leak in external function plumbed!!
 - Fixed install_external_function() to save a copy of sub

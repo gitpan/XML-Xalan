@@ -17,7 +17,7 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw();
-$VERSION = '0.22';
+$VERSION = '0.23';
 
 bootstrap XML::Xalan::Transformer $VERSION;
 XML::Xalan::Transformer::initialize();
@@ -140,6 +140,8 @@ file.
 
  $tr->transform_to_file("foo.xml", "foo.xsl", "bar.xml");
 
+To process an XML source with xml-stylesheet processing instruction, pass undef as the second argument.
+
 =item $tr->transform_to_data($source, $xsl)
 
 Transforms a source and returns the result. 
@@ -149,6 +151,8 @@ $xsl could be an XML::Xalan::CompiledStylesheet object or an XSL file.
 Example:
 
  my $result = $tr->transform_to_data("foo.xml", "foo.xsl");
+
+To process an XML source with xml-stylesheet processing instruction, pass undef as the second argument.
 
 =item $tr->transform_to_handler($source, $xsl, *FH, $handler)
 
@@ -167,6 +171,8 @@ Example:
  $tr->transform_to_handler(
      $xmlfile, $xslfile, 
      *STDERR, $out_handler);
+
+To process an XML source with xml-stylesheet processing instruction, pass undef as the second argument.
 
 =item $tr->destroy_stylesheet($compiled_stylesheet)
 
@@ -301,8 +307,22 @@ For example:
 
 =head1 TODO
 
+=over 4
+
+=item *
+
 C<set_stylesheet_param()> should accept a hash ref instead, so several
 parameters can be passed at once. 
+
+=item *
+
+Auto configure for various platforms.
+
+=item *
+
+Validation option on parsing.
+
+=back
 
 =head1 AUTHOR
 
