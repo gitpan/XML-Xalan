@@ -1,5 +1,6 @@
 package XML::Xalan;
 
+#   $Id: Xalan.pm,v 1.2 2002/04/20 06:37:51 edpratomo Exp $
 #
 #   Copyright (c) 2001-2002 Edwin Pratomo
 #
@@ -17,7 +18,7 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 
-$VERSION = '0.43';
+$VERSION = '0.44';
 bootstrap XML::Xalan $VERSION;
 
 @XML::Xalan::DOM::Document::ISA                 = "XML::Xalan::DOM::Node";
@@ -37,7 +38,25 @@ bootstrap XML::Xalan $VERSION;
 
 package XML::Xalan::Transformer;
 
-XML::Xalan::Transformer::initialize();
+my $CHILD_EXIT_HANDLER_INSTALLED = 0;
+
+if ($ENV{MOD_PERL}) {
+    unless ($CHILD_EXIT_HANDLER_INSTALLED) {
+        Apache->push_handlers(
+            PerlChildExitHandler => sub {
+                #print STDERR "Terminating inside exit handler..\n";
+                XML::Xalan::Transformer::terminate();
+            });
+        ++$CHILD_EXIT_HANDLER_INSTALLED;
+    }
+}
+
+END {
+    unless ($ENV{MOD_PERL}) {
+        #print STDERR "Terminating..\n";
+        XML::Xalan::Transformer::terminate();
+    }
+}
 
 *errstr = \&XML::Xalan::Transformer::getLastError;
 *create_document_builder = *create_doc_builder = \&XML::Xalan::Transformer::createDocumentBuilder;

@@ -1,5 +1,10 @@
 Revision history for Perl extension XML::Xalan.
 
+Apr 17,2002
+- Added hacks in Makefile.PL to fix bogus Makefile and to modify LD_RUN_PATH
+- Fixed segfault when postloaded within mod_perl using Apache::Registry
+- Fixed typo in Xalan::Transformer doc
+
 Apr 7, 2002
 - Updated to work with Xalan 1.3
 

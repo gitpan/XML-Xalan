@@ -125,7 +125,7 @@ XML::Xalan::ParsedSource object.
 Example:
 
  $out_handler = sub {
-     my ($ctx, $mesg);
+     my ($ctx, $mesg) = @_;
      print $ctx $mesg;
  };
  $tr->transform_to_handler(

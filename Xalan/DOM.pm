@@ -1,7 +1,8 @@
 package XML::Xalan::DOM;
 
+#   $Id: DOM.pm,v 1.1.1.1 2002/04/18 03:37:43 edpratomo Exp $
 #
-#   Copyright (c) 2001 Edwin Pratomo
+#   Copyright (c) 2001-2002 Edwin Pratomo
 #
 #   You may distribute under the terms of either the GNU General Public
 #   License or the Artistic License, as specified in the Perl README file,

@@ -1,4 +1,5 @@
 /* 
+   $Id: Xalan.xs,v 1.2 2002/04/20 06:37:51 edpratomo Exp $
 
    Copyright (c) 2001-2002  Edwin Pratomo
 
@@ -11,6 +12,20 @@
 
 #include "Xalan.hpp"
 
+#ifdef _USE_UTF8
+#define DOMSTRING_2CHAR(result, domstring) \
+    { \
+        unsigned int j; \
+        for (j = 0; j < domstring.length(); j++) \
+        { \
+            if (domstring[j] > 0x80) \
+                uv_to_utf8((U8*)(result + j), domstring[j]); \
+            else \
+                *(result + j) = domstring[j]; \
+        } \
+        *(result + j) = '\0'; \
+    }
+#else
 #define DOMSTRING_2CHAR(result, domstring) \
     { \
         unsigned int j = 0; \
@@ -19,6 +34,7 @@
             *(result + j) = domstring[j]; \
         *(result + j) = '\0'; \
     }
+#endif
 
 #define BLESS_CORRECT_NODE_CLASS(sv, node) \
     switch (node->getNodeType()) { \
@@ -281,6 +297,9 @@ public:
                             char *temp_str;
                             DOMSTRING_2CHAR(temp_str, args[i].get()->str());
                             sv_setpv(sv_arg, temp_str);
+#ifdef _USE_UTF8
+                            SvUTF8_on(sv_arg);
+#endif
                             delete temp_str;
                         } else {
                             sv_setref_pv( sv_arg, "XML::Xalan::String", (void*)args[i].get() );
@@ -413,9 +432,22 @@ private:
     bool m_with_context;
 };
 
+static int is_initialized = 0;
 
 MODULE = XML::Xalan    PACKAGE = XML::Xalan::Transformer
 PROTOTYPES: DISABLE
+
+BOOT:
+#ifdef DEBUG_XALAN
+    PerlIO_printf(PerlIO_stderr(), "Bootstrapping Xalan\n");
+#endif
+    if (is_initialized == 0) {
+        XMLPlatformUtils::Initialize();
+        XalanTransformer::initialize();
+    } else ++is_initialized;
+#ifdef DEBUG_XALAN
+    PerlIO_printf(PerlIO_stderr(), "is_initialized: %d\n", is_initialized);
+#endif
 
 XalanTransformer*
 XalanTransformer::new()
@@ -430,8 +462,13 @@ initialize()
 void
 terminate()
     CODE:
-    XalanTransformer::terminate();
-    XMLPlatformUtils::Terminate();
+#ifdef DEBUG_XALAN
+	PerlIO_printf(PerlIO_stderr(), "Inside terminate()..\n");
+#endif DEBUG_XALAN
+    /* I don't know why this doesn't work with perl 5.005_03 */
+    /* Commented out at this moment seems to cause no harm */
+    //XalanTransformer::terminate();
+    //XMLPlatformUtils::Terminate();
 
 const XalanCompiledStylesheet*
 compile_stylesheet_file(self, xslfile)
@@ -738,14 +775,6 @@ set_stylesheet_param(self, key, val)
     CODE:
     self->setStylesheetParam(
         XalanDOMString(key), XalanDOMString(val));
-
-void
-END()
-    CODE:
-    //PerlIO_stdoutf("Entering END()\n");
-    XalanTransformer::terminate();
-    // Call the static terminator for Xerces.
-    XMLPlatformUtils::Terminate();
 
 const char*
 XalanTransformer::getLastError()
