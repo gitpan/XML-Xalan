@@ -17,8 +17,22 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 
-$VERSION = '0.41';
+$VERSION = '0.42';
 bootstrap XML::Xalan $VERSION;
+
+@XML::Xalan::DOM::Document::ISA                 = "XML::Xalan::DOM::Node";
+@XML::Xalan::DOM::DocumentType::ISA             = "XML::Xalan::DOM::Node";
+@XML::Xalan::DOM::Element::ISA                  = "XML::Xalan::DOM::Node";
+@XML::Xalan::DOM::Attr::ISA                     = "XML::Xalan::DOM::Node";
+@XML::Xalan::DOM::CharacterData::ISA            = "XML::Xalan::DOM::Node";
+@XML::Xalan::DOM::Text::ISA                     = "XML::Xalan::DOM::CharacterData";
+@XML::Xalan::DOM::CDATASection::ISA             = "XML::Xalan::DOM::Text";
+@XML::Xalan::DOM::Comment::ISA                  = "XML::Xalan::DOM::CharacterData";
+@XML::Xalan::DOM::EntityReference::ISA          = "XML::Xalan::DOM::Node";
+@XML::Xalan::DOM::Entity::ISA                   = "XML::Xalan::DOM::Node";
+@XML::Xalan::DOM::ProcessingInstruction::ISA    = "XML::Xalan::DOM::Node";
+@XML::Xalan::DOM::DocumentFragment::ISA         = "XML::Xalan::DOM::Node";
+@XML::Xalan::DOM::Notation::ISA                 = "XML::Xalan::DOM::Node";
 
 
 package XML::Xalan::Transformer;
@@ -32,8 +46,12 @@ XML::Xalan::Transformer::initialize();
 sub install_external_function {
     my ($self, $nspace, $funcname, $funchandler, $opt) = @_;
     $self->_install_external_function($nspace, $funcname, $funchandler, 
+        defined($opt) && exists($opt->{AutoCast}) ? $opt->{AutoCast} : 0,
         defined($opt) && exists($opt->{Context}) ? $opt->{Context} : 0);
 }
+
+*install_function = \&XML::Xalan::Transformer::install_external_function;
+*uninstall_function = \&XML::Xalan::Transformer::uninstall_external_function;
 
 package XML::Xalan::ParsedSource;
 
@@ -164,57 +182,60 @@ sub comment {
     $self->_comment($comment->{Data});
 }
 
-package XML::Xalan::DOM::Document;
-use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::Node);
 
-package XML::Xalan::DOM::DocumentType;
-use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::Node);
 
-package XML::Xalan::DOM::Element;
-use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::Node);
+# XPath and XSLT classes
 
-package XML::Xalan::DOM::Attr;
-use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::Node);
+package XML::Xalan::XObject;
 
-package XML::Xalan::DOM::CharacterData;
-use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::Node);
+*string = \&XML::Xalan::XObject::str;
+*number = \&XML::Xalan::XObject::num;
 
-package XML::Xalan::DOM::Text;
-use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::CharacterData);
 
-package XML::Xalan::DOM::CDATASection;
+package XML::Xalan::Boolean;
 use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::Text);
+@ISA = qw(XML::Xalan::XObject);
 
-package XML::Xalan::DOM::Comment;
-use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::CharacterData);
+sub value {
+    shift->SUPER::boolean;
+}
 
-package XML::Xalan::DOM::EntityReference;
-use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::Node);
 
-package XML::Xalan::DOM::Entity;
+package XML::Xalan::Number;
 use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::Node);
+@ISA = qw(XML::Xalan::XObject);
 
-package XML::Xalan::DOM::ProcessingInstruction;
-use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::Node);
+sub value {
+    shift->SUPER::num;
+}
 
-package XML::Xalan::DOM::DocumentFragment;
-use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::Node);
 
-package XML::Xalan::DOM::Notation;
+package XML::Xalan::String;
 use vars qw(@ISA);
-@ISA = qw(XML::Xalan::DOM::Node);
+@ISA = qw(XML::Xalan::XObject);
+
+sub value {
+    shift->SUPER::str;
+}
+
+
+package XML::Xalan::Scalar;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::XObject);
+
+
+package XML::Xalan::NodeSet;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::XObject);
+
+sub get_nodelist {
+    shift->SUPER::nodeset;
+}
+
+
+package XML::Xalan::ResultTreeFragment;
+use vars qw(@ISA);
+@ISA = qw(XML::Xalan::XObject);
 
 1;
 __END__

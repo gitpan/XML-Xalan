@@ -1,0 +1,174 @@
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::XObject
+PROTOTYPES: DISABLE
+
+double
+XObject::num()
+
+bool
+XObject::boolean()
+
+char*
+str(self)
+    XObject* self
+    CODE:
+    DOMSTRING_2CHAR(RETVAL, self->str());
+    OUTPUT:
+    RETVAL
+
+void
+nodeset(self)
+    XObject* self
+    PREINIT:
+    int i;
+    PPCODE:
+    const NodeRefListBase& ret_nodeset = self->nodeset();
+    const unsigned int theLength = ret_nodeset.getLength();
+    //PerlIO_printf(PerlIO_stderr(), "Nodeset size: %d\n", theLength);
+    
+    if (theLength == 0) 
+        XSRETURN_EMPTY;
+    else {
+        EXTEND(sp, theLength);  
+        for (i = 0; i < theLength; i++) {
+            SV *sv_node = sv_newmortal();
+            XalanNode const *the_node = ret_nodeset.item(i);
+
+            //char *tmp;
+            //DOMSTRING_2CHAR(tmp, the_node->getNodeName());
+            //PerlIO_printf(PerlIO_stderr(), "Node name: %s\n", tmp);
+
+            BLESS_CORRECT_NODE_CLASS(sv_node, the_node)
+            PUSHs(sv_node);
+        }
+    }
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::Scalar
+PROTOTYPES: DISABLE
+
+SV*
+value(self)
+    XObject *self
+    CODE:
+#ifdef _EXPERIMENTAL
+    XSv* const tmp_xsv = (XSv*)self;
+    RETVAL = tmp_xsv->getSV();
+#else
+    warn("User defined XObject type (XML::Xalan::Scalar) isn't implemented yet.");
+    XSRETURN_UNDEF;
+#endif
+    OUTPUT:
+    RETVAL
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::ResultTreeFragment
+PROTOTYPES: DISABLE
+
+void
+value(self)
+    XObject* self
+    CODE:
+    warn("eTypeResultTreeFrag is unimplemented yet");
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::XObjectFactory
+PROTOTYPES: DISABLE
+
+XObject*
+create_nodeset(self, ...)
+    Xalan_XObjectFactory* self
+    PREINIT:
+    unsigned int i;
+    SV **sv_node;
+    char *CLASS = "XML::Xalan::NodeSet";
+    CODE:
+    sv_node = (SV**) safemalloc(sizeof(SV*) * (items - 1));
+    if (!sv_node) {
+        croak("XML::Xalan::XObjectFactory::create_nodeset() -- Can't allocate memory");
+        XSRETURN_UNDEF;
+    }
+    for (i = 1; i < items; i++) {
+        if ( sv_isobject(ST(i)) && (SvTYPE(SvRV(ST(i))) == SVt_PVMG) )
+            *(sv_node + i - 1) = (SV*)SvRV( ST(i) );
+        else{
+            warn( "XML::Xalan::XObjectFactory::create_nodeset() -- input arg is not a blessed SV reference" );
+            sv_setsv(*(sv_node + i - 1), &PL_sv_undef);
+        };
+    }
+    RETVAL = self->create_nodeset(items - 1, sv_node);
+    safefree(sv_node);
+    OUTPUT:
+    RETVAL
+
+XObject*
+create_boolean(self, value)
+    Xalan_XObjectFactory* self
+    bool value
+    PREINIT:
+    char *CLASS = "XML::Xalan::Boolean";
+    CODE:
+    RETVAL = self->create_boolean(value);
+    OUTPUT:
+    RETVAL
+
+XObject*
+create_number(self, value)
+    Xalan_XObjectFactory* self
+    double value
+    PREINIT:
+    char *CLASS = "XML::Xalan::Number";
+    CODE:
+    RETVAL = self->create_number(value);
+    OUTPUT:
+    RETVAL
+
+XObject*
+create_string(self, value)
+    Xalan_XObjectFactory* self
+    char *value
+    PREINIT:
+    char *CLASS = "XML::Xalan::String";
+    CODE:
+    RETVAL = self->create_string(value);
+    OUTPUT:
+    RETVAL
+
+XObject*
+Xalan_XObjectFactory::create_scalar(sv)
+    SV *sv
+    PREINIT:
+    char *CLASS = "XML::Xalan::Scalar";
+
+void
+Xalan_XObjectFactory::DESTROY()
+
+
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::ExecutionContext::XPath
+PROTOTYPES: DISABLE
+
+Xalan_XObjectFactory*
+get_xobject_factory(self)
+    XPathExecutionContext *self
+    PREINIT:
+    char *CLASS = "XML::Xalan::XObjectFactory";
+    CODE:
+    RETVAL = new Xalan_XObjectFactory(self);
+    if (!RETVAL)
+        XSRETURN_UNDEF;
+    OUTPUT:
+    RETVAL
+
+unsigned int
+position(self)
+    XPathExecutionContext *self
+    CODE:
+    croak("Unimplemented");
+    RETVAL = 0;
+    OUTPUT:
+    RETVAL
+
+void
+XPathExecutionContext::error(mesg, context_node)
+    char *mesg
+    XalanNode *context_node
+

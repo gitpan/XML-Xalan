@@ -5,7 +5,15 @@ char*
 getSystemId(self)
     XalanNotation *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getSystemId());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getSystemId();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -14,7 +22,15 @@ char*
 getPublicId(self)
     XalanNotation *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getPublicId());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getPublicId();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -38,7 +54,15 @@ char*
 getName(self)
     XalanAttr *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getName());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getName();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -48,7 +72,13 @@ setValue(self, value)
     XalanAttr *self
     char* value
     CODE:
-    self->setValue(XalanDOMString(value));
+    try {
+        self->setValue(XalanDOMString(value));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 XalanElement*
@@ -57,7 +87,13 @@ getOwnerElement(self)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Element";
     CODE:
-    RETVAL = self->getOwnerElement();
+    try {
+        RETVAL = self->getOwnerElement();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     if (!RETVAL)
         XSRETURN_UNDEF;
     OUTPUT:
@@ -67,7 +103,15 @@ char*
 getValue(self)
     XalanAttr *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getValue());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getValue();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -79,7 +123,15 @@ char*
 getSystemId(self)
     XalanEntity *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getSystemId());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getSystemId();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -88,7 +140,15 @@ char*
 getPublicId(self)
     XalanEntity *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getPublicId());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getPublicId();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -97,7 +157,15 @@ char*
 getNotationName(self)
     XalanEntity *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getNotationName());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getNotationName();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -112,18 +180,34 @@ createEntityReference(self, name)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::EntityReference";
     CODE:
-    RETVAL = self->createEntityReference(XalanDOMString(name));
+    try {
+        RETVAL = self->createEntityReference(XalanDOMString(name));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
 
 XalanNode*
-XalanDocument::importNode(importedNode, deep)
+importNode(self, importedNode, deep)
+    XalanDocument *self
     XalanNode* importedNode
     bool deep
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Node";
-
+    CODE:
+    try {
+        RETVAL = self->importNode(importedNode, deep);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanCDATASection*
 createCDATASection(self, data)
@@ -132,22 +216,48 @@ createCDATASection(self, data)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::CDATASection";
     CODE:
-    RETVAL = self->createCDATASection(XalanDOMString(data));
+    try {
+        RETVAL = self->createCDATASection(XalanDOMString(data));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
 
 XalanDOMImplementation*
-XalanDocument::getImplementation()
+getImplementation(self)
+    XalanDocument *self
     PREINIT:
-    char *CLASS = "XML::Xalan::DOM::Implementation";
-
+    char *CLASS = "XML::Xalan::DOM::DOMImplementation";
+    CODE:
+    try {
+        RETVAL = self->getImplementation();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanDocumentFragment*
-XalanDocument::createDocumentFragment()
+createDocumentFragment(self)
+    XalanDocument *self
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::DocumentFragment";
-
+    CODE:
+    try {
+        RETVAL = self->createDocumentFragment();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanComment*
 createComment(self, data)
@@ -156,7 +266,13 @@ createComment(self, data)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Comment";
     CODE:
-    RETVAL = self->createComment(XalanDOMString(data));
+    try {
+        RETVAL = self->createComment(XalanDOMString(data));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -168,7 +284,13 @@ createAttribute(self, name)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Attr";
     CODE:
-    RETVAL = self->createAttribute(XalanDOMString(name));
+    try {
+        RETVAL = self->createAttribute(XalanDOMString(name));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -185,16 +307,32 @@ createAttributeNS(self, namespaceURI, qname)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Attr";
     CODE:
-    RETVAL = self->createAttributeNS(XalanDOMString(namespaceURI), XalanDOMString(qname));
+    try {
+        RETVAL = self->createAttributeNS(XalanDOMString(namespaceURI), XalanDOMString(qname));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
 
 XalanElement*
-XalanDocument::getDocumentElement()
+getDocumentElement(self)
+    XalanDocument *self
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Element";
-
+    CODE:
+    try {
+        RETVAL = self->getDocumentElement();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanElement*
 getElementById(self, elementId)
@@ -203,7 +341,13 @@ getElementById(self, elementId)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Element";
     CODE:
-    RETVAL = self->getElementById(XalanDOMString(elementId));
+    try {
+        RETVAL = self->getElementById(XalanDOMString(elementId));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -216,7 +360,13 @@ createProcessingInstruction(self, target, data)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::ProcessingInstruction";
     CODE:
-    RETVAL = self->createProcessingInstruction(XalanDOMString(target), XalanDOMString(data));
+    try {
+        RETVAL = self->createProcessingInstruction(XalanDOMString(target), XalanDOMString(data));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -228,7 +378,13 @@ getElementsByTagName(self, tagname)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::NodeList";
     CODE:
-    RETVAL = self->getElementsByTagName(XalanDOMString(tagname));
+    try {
+        RETVAL = self->getElementsByTagName(XalanDOMString(tagname));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -241,16 +397,32 @@ getElementsByTagNameNS(self, namespaceURI, localname)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::NodeList";
     CODE:
-    RETVAL = self->getElementsByTagNameNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    try {
+        RETVAL = self->getElementsByTagNameNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
 
 XalanDocumentType*
-XalanDocument::getDoctype()
+getDoctype(self)
+    XalanDocument *self
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::DocumentType";
-
+    CODE:
+    try {
+        RETVAL = self->getDoctype();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanElement*
 createElement(self, tagname)
@@ -259,7 +431,13 @@ createElement(self, tagname)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Element";
     CODE:
-    RETVAL = self->createElement(XalanDOMString(tagname));
+    try {
+        RETVAL = self->createElement(XalanDOMString(tagname));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -271,7 +449,13 @@ createTextNode(self, data)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Text";
     CODE:
-    RETVAL = self->createTextNode(XalanDOMString(data));
+    try {
+        RETVAL = self->createTextNode(XalanDOMString(data));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -284,7 +468,13 @@ createElementNS(self, namespaceURI, qname)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Element";
     CODE:
-    RETVAL = self->createElementNS(XalanDOMString(namespaceURI), XalanDOMString(qname));
+    try {
+        RETVAL = self->createElementNS(XalanDOMString(namespaceURI), XalanDOMString(qname));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -296,7 +486,15 @@ char*
 getData(self)
     XalanProcessingInstruction *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getData());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getData();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -306,14 +504,28 @@ setData(self, data)
     XalanProcessingInstruction *self
     char* data
     CODE:
-    self->setData(XalanDOMString(data));
+    try {
+        self->setData(XalanDOMString(data));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 char*
 getTarget(self)
     XalanProcessingInstruction *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getTarget());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getTarget();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -325,7 +537,15 @@ char*
 getName(self)
     XalanDocumentType *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getName());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getName();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -334,7 +554,15 @@ char*
 getSystemId(self)
     XalanDocumentType *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getSystemId());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getSystemId();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -343,7 +571,15 @@ char*
 getInternalSubset(self)
     XalanDocumentType *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getInternalSubset());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getInternalSubset();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -352,22 +588,50 @@ char*
 getPublicId(self)
     XalanDocumentType *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getPublicId());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getPublicId();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
 
 const XalanNamedNodeMap*
-XalanDocumentType::getEntities()
+getEntities(self)
+    XalanDocumentType *self
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::NamedNodeMap";
-
+    CODE:
+    try {
+        RETVAL = self->getEntities();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 const XalanNamedNodeMap*
-XalanDocumentType::getNotations()
+getNotations(self)
+    XalanDocumentType *self
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::NamedNodeMap";
-
+    CODE:
+    try {
+        RETVAL = self->getNotations();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::NodeList
 PROTOTYPES: DISABLE
@@ -377,21 +641,41 @@ XalanNodeList::getLength()
 
 
 XalanNode*
-XalanNodeList::item(index)
+item(self, index)
+    XalanNodeList *self
     unsigned int index
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Node";
-
+    CODE:
+    try {
+        RETVAL = self->item(index);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Text
 PROTOTYPES: DISABLE
 
 XalanText*
-XalanText::splitText(offset)
+splitText(self, offset)
+    XalanText *self
     unsigned int offset
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Text";
-
+    CODE:
+    try {
+        RETVAL = self->splitText(offset);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Node
 PROTOTYPES: DISABLE
@@ -402,7 +686,13 @@ replaceChild(self,  newChild, oldChild)
     XalanNode* newChild
     XalanNode* oldChild
     CODE:
-    RETVAL = self->replaceChild(newChild, oldChild);
+    try {
+        RETVAL = self->replaceChild(newChild, oldChild);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     if (!RETVAL) 
         XSRETURN_UNDEF;
     ST(0) = sv_newmortal();
@@ -413,7 +703,15 @@ char*
 getNodeValue(self)
     XalanNode *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getNodeValue());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getNodeValue();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -422,7 +720,13 @@ XalanNode*
 getPreviousSibling(self)
     XalanNode *self
     CODE:
-    RETVAL = self->getPreviousSibling();
+    try {
+        RETVAL = self->getPreviousSibling();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     if (!RETVAL) 
         XSRETURN_UNDEF;
     ST(0) = sv_newmortal();
@@ -430,16 +734,32 @@ getPreviousSibling(self)
 
 
 const XalanNamedNodeMap*
-XalanNode::getAttributes()
+getAttributes(self)
+    XalanNode *self
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::NamedNodeMap";
-
+    CODE:
+    try {
+        RETVAL = self->getAttributes();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanNode*
 getNextSibling(self)
     XalanNode *self
     CODE:
-    RETVAL = self->getNextSibling();
+    try {
+        RETVAL = self->getNextSibling();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     if (!RETVAL) 
         XSRETURN_UNDEF;
     ST(0) = sv_newmortal();
@@ -450,7 +770,15 @@ char*
 getNodeName(self)
     XalanNode *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getNodeName());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getNodeName();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -461,7 +789,13 @@ insertBefore(self,  newChild, refChild)
     XalanNode* newChild
     XalanNode* refChild
     CODE:
-    RETVAL = self->insertBefore(newChild, refChild);
+    try {
+        RETVAL = self->insertBefore(newChild, refChild);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     if (!RETVAL) 
         XSRETURN_UNDEF;
     ST(0) = sv_newmortal();
@@ -469,20 +803,50 @@ insertBefore(self,  newChild, refChild)
 
 
 int
-XalanNode::getNodeType()
-
+getNodeType(self)
+    XalanNode *self
+    CODE:
+    try {
+        RETVAL = self->getNodeType();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanDocument*
-XalanNode::getOwnerDocument()
+getOwnerDocument(self)
+    XalanNode *self
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Document";
-
+    CODE:
+    try {
+        RETVAL = self->getOwnerDocument();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    if (!RETVAL) 
+        XSRETURN_UNDEF;
+    OUTPUT:
+    RETVAL
 
 char*
 getLocalName(self)
     XalanNode *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getLocalName());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getLocalName();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -491,7 +855,13 @@ XalanNode*
 getFirstChild(self)
     XalanNode *self
     CODE:
-    RETVAL = self->getFirstChild();
+    try {
+        RETVAL = self->getFirstChild();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     if (!RETVAL) 
         XSRETURN_UNDEF;
     ST(0) = sv_newmortal();
@@ -502,6 +872,15 @@ char*
 getPrefix(self)
     XalanNode *self
     CODE:
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getPrefix();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     DOMSTRING_2CHAR(RETVAL, self->getPrefix());
     OUTPUT:
     RETVAL
@@ -512,7 +891,13 @@ setNodeValue(self, nodeValue)
     XalanNode *self
     char* nodeValue
     CODE:
-    self->setNodeValue(XalanDOMString(nodeValue));
+    try {
+        self->setNodeValue(XalanDOMString(nodeValue));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 bool
@@ -521,13 +906,28 @@ supports(self, feature, version)
     char* feature
     char* version
     CODE:
-    RETVAL = self->supports(XalanDOMString(feature), XalanDOMString(version));
+    try {
+        RETVAL = self->supports(XalanDOMString(feature), XalanDOMString(version));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
 
 void
-XalanNode::normalize()
+normalize(self)
+    XalanNode *self
+    CODE:
+    try {
+        self->normalize();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 XalanNode*
@@ -535,7 +935,13 @@ removeChild(self,  oldChild)
     XalanNode *self
     XalanNode* oldChild
     CODE:
-    RETVAL = self->removeChild(oldChild);
+    try {
+        RETVAL = self->removeChild(oldChild);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     if (!RETVAL) 
         XSRETURN_UNDEF;
     ST(0) = sv_newmortal();
@@ -547,7 +953,13 @@ cloneNode(self,  deep)
     XalanNode *self
     bool deep
     CODE:
-    RETVAL = self->cloneNode(deep);
+    try {
+        RETVAL = self->cloneNode(deep);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     if (!RETVAL) 
         XSRETURN_UNDEF;
     ST(0) = sv_newmortal();
@@ -555,14 +967,30 @@ cloneNode(self,  deep)
 
 
 unsigned long
-XalanNode::getIndex()
-
+getIndex(self)
+    XalanNode *self
+    CODE:
+    try {
+        RETVAL = self->getIndex();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanNode*
 getLastChild(self)
     XalanNode *self
     CODE:
-    RETVAL = self->getLastChild();
+    try {
+        RETVAL = self->getLastChild();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     if (!RETVAL) 
         XSRETURN_UNDEF;
     ST(0) = sv_newmortal();
@@ -574,7 +1002,13 @@ setPrefix(self, prefix)
     XalanNode *self
     char* prefix
     CODE:
-    self->setPrefix(XalanDOMString(prefix));
+    try {
+        self->setPrefix(XalanDOMString(prefix));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 XalanNode*
@@ -582,7 +1016,13 @@ appendChild(self,  newChild)
     XalanNode *self
     XalanNode* newChild
     CODE:
-    RETVAL = self->appendChild(newChild);
+    try {
+        RETVAL = self->appendChild(newChild);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     if (!RETVAL) 
         XSRETURN_UNDEF;
     ST(0) = sv_newmortal();
@@ -590,25 +1030,54 @@ appendChild(self,  newChild)
 
 
 bool
-XalanNode::isIndexed()
+isIndexed(self)
+    XalanNode *self
+    CODE:
+    try {
+        RETVAL = self->isIndexed();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 
 char*
 getNamespaceURI(self)
     XalanNode *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getNamespaceURI());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getNamespaceURI();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
 
 const XalanNodeList*
-XalanNode::getChildNodes()
+getChildNodes(self)
+    XalanNode *self
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::NodeList";
+    CODE:
+    try {
+        RETVAL = self->getChildNodes();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
-
-MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Implementation
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::DOMImplementation
 PROTOTYPES: DISABLE
 
 bool
@@ -617,7 +1086,13 @@ hasFeature(self, feature, version)
     char* feature
     char* version
     CODE:
-    RETVAL = self->hasFeature(XalanDOMString(feature), XalanDOMString(version));
+    try {
+        RETVAL = self->hasFeature(XalanDOMString(feature), XalanDOMString(version));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -631,7 +1106,13 @@ createDocumentType(self, qname, publicId, systemId)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::DocumentType";
     CODE:
-    RETVAL = self->createDocumentType(XalanDOMString(qname), XalanDOMString(publicId), XalanDOMString(systemId));
+    try {
+        RETVAL = self->createDocumentType(XalanDOMString(qname), XalanDOMString(publicId), XalanDOMString(systemId));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -644,18 +1125,42 @@ appendData(self, arg)
     XalanCharacterData *self
     char* arg
     CODE:
-    self->appendData(XalanDOMString(arg));
+    try {
+        self->appendData(XalanDOMString(arg));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 unsigned int
-XalanCharacterData::getLength()
-
+getLength(self)
+    XalanCharacterData *self
+    CODE:
+    try {
+        RETVAL = self->getLength();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 char*
 getData(self)
     XalanCharacterData *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getData());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getData();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -666,15 +1171,32 @@ substringData(self, offset, count)
     unsigned int offset
     unsigned int count
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->substringData(offset, count));
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->substringData(offset, count);
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
 
 void
-XalanCharacterData::deleteData(offset, count)
+deleteData(self, offset, count)
+    XalanCharacterData *self
     unsigned int offset
     unsigned int count
+    CODE:
+    try {
+        self->deleteData(offset, count);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 void
@@ -684,7 +1206,13 @@ replaceData(self, offset, count, arg)
     unsigned int count
     char* arg
     CODE:
-    self->replaceData(offset, count, XalanDOMString(arg));
+    try {
+        self->replaceData(offset, count, XalanDOMString(arg));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 void
@@ -693,25 +1221,51 @@ insertData(self, offset, arg)
     unsigned int offset
     char* arg
     CODE:
-    self->insertData(offset, XalanDOMString(arg));
+    try {
+        self->insertData(offset, XalanDOMString(arg));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::NamedNodeMap
 PROTOTYPES: DISABLE
 
 XalanNode*
-XalanNamedNodeMap::setNamedItem(arg)
+setNamedItem(self, arg)
+    XalanNamedNodeMap *self
     XalanNode* arg
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Node";
-
+    CODE:
+    try {
+        RETVAL = self->setNamedItem(arg);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanNode*
-XalanNamedNodeMap::setNamedItemNS(arg)
+setNamedItemNS(self, arg)
+    XalanNamedNodeMap *self
     XalanNode* arg
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Node";
-
+    CODE:
+    try {
+        RETVAL = self->setNamedItemNS(arg);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanNode*
 removeNamedItem(self, name)
@@ -720,14 +1274,30 @@ removeNamedItem(self, name)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Node";
     CODE:
-    RETVAL = self->removeNamedItem(XalanDOMString(name));
+    try {
+        RETVAL = self->removeNamedItem(XalanDOMString(name));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
 
 unsigned int
-XalanNamedNodeMap::getLength()
-
+getLength(self)
+    XalanNamedNodeMap *self
+    CODE:
+    try {
+        RETVAL = self->getLength();
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanNode*
 removeNamedItemNS(self, namespaceURI, localname)
@@ -737,7 +1307,13 @@ removeNamedItemNS(self, namespaceURI, localname)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Node";
     CODE:
-    RETVAL = self->removeNamedItemNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    try {
+        RETVAL = self->removeNamedItemNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -749,7 +1325,13 @@ getNamedItem(self, name)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Node";
     CODE:
-    RETVAL = self->getNamedItem(XalanDOMString(name));
+    try {
+        RETVAL = self->getNamedItem(XalanDOMString(name));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -762,17 +1344,33 @@ getNamedItemNS(self, namespaceURI, localname)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Node";
     CODE:
-    RETVAL = self->getNamedItemNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    try {
+        RETVAL = self->getNamedItemNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
 
 XalanNode*
-XalanNamedNodeMap::item(index)
+item(self, index)
+    XalanNamedNodeMap *self
     unsigned int index
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Node";
-
+    CODE:
+    try {
+        RETVAL = self->item(index);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Element
 PROTOTYPES: DISABLE
@@ -783,7 +1381,13 @@ setAttribute(self, name, value)
     char* name
     char* value
     CODE:
-    self->setAttribute(XalanDOMString(name), XalanDOMString(value));
+    try {
+        self->setAttribute(XalanDOMString(name), XalanDOMString(value));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 void
@@ -793,7 +1397,13 @@ setAttributeNS(self, namespaceURI, qname, value)
     char* qname
     char* value
     CODE:
-    self->setAttributeNS(XalanDOMString(namespaceURI), XalanDOMString(qname), XalanDOMString(value));
+    try {
+        self->setAttributeNS(XalanDOMString(namespaceURI), XalanDOMString(qname), XalanDOMString(value));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 void
@@ -801,7 +1411,13 @@ removeAttribute(self, name)
     XalanElement *self
     char* name
     CODE:
-    self->removeAttribute(XalanDOMString(name));
+    try {
+        self->removeAttribute(XalanDOMString(name));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 void
@@ -810,7 +1426,13 @@ removeAttributeNS(self, namespaceURI, localname)
     char* namespaceURI
     char* localname
     CODE:
-    self->removeAttributeNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    try {
+        self->removeAttributeNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
 
 
 char*
@@ -818,7 +1440,15 @@ getAttribute(self, name)
     XalanElement *self
     char* name
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getAttribute(XalanDOMString(name)));
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getAttribute(XalanDOMString(name));
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -830,9 +1460,15 @@ getElementsByTagName(self, localname)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::NodeList";
     CODE:
-    RETVAL = self->getElementsByTagName(XalanDOMString(localname));
+    try {
+        RETVAL = self->getElementsByTagName(XalanDOMString(localname));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     if (!RETVAL) 
-        PerlIO_printf(PerlIO_stderr(), "retval is null\n");
+        XSRETURN_UNDEF;
     OUTPUT:
     RETVAL
 
@@ -843,7 +1479,15 @@ getAttributeNS(self, namespaceURI, localname)
     char* namespaceURI
     char* localname
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getAttributeNS(XalanDOMString(namespaceURI), XalanDOMString(localname)));
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getAttributeNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
@@ -856,31 +1500,67 @@ getElementsByTagNameNS(self, namespaceURI, localname)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::NodeList";
     CODE:
-    RETVAL = self->getElementsByTagNameNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    try {
+        RETVAL = self->getElementsByTagNameNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
 
 XalanAttr*
-XalanElement::setAttributeNode(newAttr)
+setAttributeNode(self, newAttr)
+    XalanElement *self
     XalanAttr* newAttr
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Attr";
-
+    CODE:
+    try {
+        RETVAL = self->setAttributeNode(newAttr);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanAttr*
-XalanElement::setAttributeNodeNS(newAttr)
+setAttributeNodeNS(self, newAttr)
+    XalanElement *self
     XalanAttr* newAttr
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Attr";
-
+    CODE:
+    try {
+        RETVAL = self->setAttributeNodeNS(newAttr);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanAttr*
-XalanElement::removeAttributeNode(oldAttr)
+removeAttributeNode(self, oldAttr)
+    XalanElement *self
     XalanAttr* oldAttr
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Attr";
-
+    CODE:
+    try {
+        RETVAL = self->removeAttributeNode(oldAttr);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    OUTPUT:
+    RETVAL
 
 XalanAttr*
 getAttributeNode(self, name)
@@ -889,7 +1569,13 @@ getAttributeNode(self, name)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Attr";
     CODE:
-    RETVAL = self->getAttributeNode(XalanDOMString(name));
+    try {
+        RETVAL = self->getAttributeNode(XalanDOMString(name));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -902,7 +1588,13 @@ getAttributeNodeNS(self, namespaceURI, localname)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Attr";
     CODE:
-    RETVAL = self->getAttributeNodeNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    try {
+        RETVAL = self->getAttributeNodeNS(XalanDOMString(namespaceURI), XalanDOMString(localname));
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 
@@ -911,12 +1603,20 @@ char*
 getTagName(self)
     XalanElement *self
     CODE:
-    DOMSTRING_2CHAR(RETVAL, self->getTagName());
+    XalanDOMString tmpDOMString;
+    try {
+        tmpDOMString = self->getTagName();
+    } catch (const XalanDOMException& e) {
+        char *mesg;
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode());
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
+    DOMSTRING_2CHAR(RETVAL, tmpDOMString);
     OUTPUT:
     RETVAL
 
 
-MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::Implementation
+MODULE = XML::Xalan    PACKAGE = XML::Xalan::DOM::DOMImplementation
 PROTOTYPES: DISABLE
 
 XalanDocument*
@@ -928,7 +1628,13 @@ createDocument(self, namespaceURI, qname, doctype)
     PREINIT:
     char *CLASS = "XML::Xalan::DOM::Document";
     CODE:
-    RETVAL = self->createDocument(XalanDOMString(namespaceURI), XalanDOMString(qname), *doctype);
+    try {
+        RETVAL = self->createDocument(XalanDOMString(namespaceURI), XalanDOMString(qname), *doctype);
+    } catch (const XalanDOMException& e) {
+        char *mesg; 
+        TRANSLATE_DOMEXCEPTION_CODE(mesg, e.getExceptionCode())
+        croak("XalanDOMException caught: %s.\n", mesg);
+    }
     OUTPUT:
     RETVAL
 

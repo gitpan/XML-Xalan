@@ -17,17 +17,17 @@ sub init {
 }
 
 sub load_stylesheet {
-	$tr->destroy_stylesheet($compiled) if defined $compiled;
+    $tr->destroy_stylesheet($compiled) if defined $compiled;
     $compiled = $tr->compile_stylesheet_file(shift);
 }
 
 sub load_input {
-	$tr->destroy_parsed_source($input) if defined $input;
-	$input = $tr->parse_file(shift);
+    $tr->destroy_parsed_source($input) if defined $input;
+    $input = $tr->parse_file(shift);
 }
 
 sub run_transform {
-	$tr->transform_to_file($input, $compiled, shift);
+    $tr->transform_to_file($input, $compiled, shift);
 #    print STDERR "\n";
 }
 

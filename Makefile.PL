@@ -64,7 +64,7 @@ if ($os eq 'MSWin32') {
     $xerces_inc = prompt("Xerces C++ INC directory: ", $xerces_inc);
     
     $config{INC}        = "-I$xalan_inc -I$xerces_inc ";
-    $config{DEFINE}     = '-D_WINDOWS -D_MBCS -D_REENTRANT';
+    $config{DEFINE}     = '-D_WINDOWS -D_MBCS -D_REENTRANT -D_EXPERIMENTAL';
     $config{CCFLAGS}    = '/W1 /GR /GX /Ob2 '.$Config{ccflags};
 
     eval qq[
@@ -108,7 +108,7 @@ DEATH
 -lc -L$ENV{XALANCROOT}/lib -lxalan-c1_2  -L/usr/lib
 -L/usr/local/lib
 LIBS
-    $config{DEFINE}     = '-DLINUX -D_REENTRANT -DNDEBUG';
+    $config{DEFINE}     = '-DLINUX -D_REENTRANT -DNDEBUG -D_EXPERIMENTAL';
     $config{CC}         = 'c++';
     $config{LD}         = 'g++';
     $config{CCFLAGS}    = '-instances=static',
@@ -125,7 +125,7 @@ WriteMakefile(
     'ABSTRACT'  => 'Perl interface to Xalan C++',
     'VERSION_FROM' => 'Xalan.pm', # finds $VERSION
     'OBJECT'    => '$(O_FILES)',
-     'clean'    => {FILES => "Xalan.cpp"},
+     'clean'    => {FILES => "Xalan.cpp samples/docs/*.out"},
     %config,
 );
 

@@ -90,8 +90,8 @@ This module exports the following constants which represent DOM node types:
   DOCUMENT_FRAGMENT_NODE(11)        a DocumentFragment node
   NOTATION_NODE(12)                 a Notation node
 
-Note that DOM interface in Xalan C++ 1.2 hasn't been finished yet. Some
-methods are known to simply return 0.
+Note that DOM API in Xalan C++ 1.2 hasn't been completely finished yet. Some methods are known 
+to simply return 0.
 
 =head1 AUTHOR
 

@@ -1,0 +1,50 @@
+=head1 NAME
+
+XML::Xalan::XObjectFactory - XObject factory class
+
+=head1 SYNOPSIS
+
+  use XML::Xalan;
+  ...
+
+  my $xobj_factory = $execution_context->get_xobject_factory;
+
+=head1 DESCRIPTION
+
+No desc yet. 
+
+=head1 METHODS
+
+=over 4
+
+=item $xobj_factory->create_number($num)
+
+Creates an C<XML::Xalan::Number> object.
+
+=item $xobj_factory->create_boolean($bool)
+
+Creates an C<XML::Xalan::Boolean> object. 
+
+=item $xobj_factory->create_nodeset(@nodes)
+
+Creates an C<XML::Xalan::NodeSet> object. 
+
+=item $xobj_factory->create_string($string)
+
+Creates an C<XML::Xalan::String> object. 
+
+=item $xobj_factory->create_scalar($obj)
+
+Creates an C<XML::Xalan::Scalar> object.
+
+=back
+
+=head1 AUTHOR
+
+Edwin Pratomo, edpratomo@cpan.org
+
+=head1 SEE ALSO
+
+C<XML::Xalan::Transformer>(3), C<XML::Xalan::DOM>(3), C<XML::Xalan::XObject>(3).
+
+=cut

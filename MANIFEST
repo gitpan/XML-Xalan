@@ -1,6 +1,11 @@
 Makefile.PL
 Xalan.xs
 xs.dom
+xs.xpath
+XSv.cpp
+XSv.hpp
+Xalan.hpp
+wrappers.cpp
 MANIFEST
 t/00base.t
 t/03error.t
@@ -17,6 +22,10 @@ t/11leak_data.t
 t/12sv.t
 t/14sax2_content_leak.t
 t/13sax2_content.t
+t/15ext_ctx.t
+t/16nodeset.t
+t/17sv_context.t
+t/18ext_err.t
 Driver/Xalan.pm
 README
 Changes
@@ -43,3 +52,5 @@ Xalan/Transformer.pod
 Xalan/DocumentBuilder.pod
 Xalan/ParsedSource.pod
 Xalan/DOM.pm
+Xalan/XObject.pod
+Xalan/XObjectFactory.pod

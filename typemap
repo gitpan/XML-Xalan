@@ -8,6 +8,7 @@ XObjectFactory *                O_OBJECT
 
 const XalanParsedSource*        O_OBJECT
 XalanParsedSource*              O_OBJECT
+Xalan_XalanParsedSource*        O_OBJECT
 const XalanCompiledStylesheet * O_OBJECT
 XalanCompiledStylesheet *       O_OBJECT
 
@@ -34,6 +35,7 @@ XalanNotation *					O_OBJECT
 XString *                       O_OBJECT
 XObject *                       O_OBJECT
 const XObjectPtr                O_OBJECT
+XObjectPtr *					O_OBJECT
 XNodeSet *                      O_OBJECT
 
 XalanDocumentBuilder *          O_OBJECT
@@ -43,6 +45,9 @@ ContentHandler *                O_OBJECT
 DTDHandler *                    O_OBJECT
 LexicalHandler *                O_OBJECT
 
+Xalan_XObjectFactory *			O_OBJECT
+NodeRefListBase *				O_OBJECT
+const NodeRefListBase *			O_OBJECT
 XPathExecutionContext *         O_OBJECT
 
 OUTPUT

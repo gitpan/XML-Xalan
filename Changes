@@ -1,5 +1,26 @@
 Revision history for Perl extension XML::Xalan.
 
+Dec 13, 2001
+- Added AutoCast option to install_function()
+- Updated Transformer doc. 
+- Applied a micro patch to compile with gcc 2.95
+
+Dec 12, 2001
+- ext function arguments now automatically converted to basic data type equivalent to the xslt type. 
+- now may die() safely inside extension function.
+- more robust DOM methods. exceptions caught.
+
+Dec 11, 2001
+- Fixed segfault in XML::Xalan::XObject's get_nodelist()
+- Fixed XSv.hpp to compile with MSVC
+
+Dec 7, 2001
+- Added XML::Xalan::ExecutionContext::XPath, XML::Xalan::XObject,
+  XML::Xalan::XObjectFactory
+- Extension function now accepts ExecutionContext object as the first arg,
+  returning XML::Xalan::XObject object, and accepting XML::Xalan::XObject as 
+  the third argument and so forth. 
+
 Dec 4, 2001
 - Added get_document() for XML::Xalan::ParsedSource
 - Drawed inheritance line from XML::Xalan::ParsedSource to XML::Xalan::DocumentBuilder

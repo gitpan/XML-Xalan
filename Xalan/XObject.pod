@@ -1,0 +1,112 @@
+=head1 NAME
+
+XML::Xalan::XObject - Base class for XSLT data type classes
+
+=head1 SYNOPSIS
+
+  use XML::Xalan;
+  ...
+
+=head1 DESCRIPTION
+
+Arguments passed to and the value returned from an XLST function will be of type of one of the classes 
+derived from C<XML::Xalan::XObject>: C<XML::Xalan::Boolean>, C<XML::Xalan::Number>, C<XML::Xalan::String>,
+C<XML::Xalan::NodeSet>, or C<XML::Xalan::Scalar>. 
+
+=head1 C<XML::Xalan::NodeSet>
+
+B<All location path expressions> will return an object of this type, even if the expression only 
+returns a single attribute or a text node (node set with one member).
+
+=head2 Methods
+
+=over 4
+
+=item $nodeset->number()
+
+Returns the numeric representation (a numeric scalar).
+
+=item $nodeset->string()
+
+Returns the stringified nodeset (a string scalar). 
+
+=item $nodeset->boolean()
+
+Returns the boolean representation.
+
+=item $nodeset->get_nodelist()
+
+Returns a list of L<XML::Xalan::DOM> node objects. 
+
+=back
+
+=head1 C<XML::Xalan::String>
+
+XSLT string() function returns an object of this type.
+
+=head2 Methods
+
+=over 4
+
+=item $string->value()
+
+Returns the string value. 
+
+=back
+
+=head1 C<XML::Xalan::Number>
+
+XSLT number() function returns an object of this type.
+
+=head2 Methods
+
+=over 4
+
+=item $number->value()
+
+Returns the numeric value.
+
+=back
+
+=head1 C<XML::Xalan::Boolean>
+
+XSLT conditional expression returns an object of this type.
+
+=head2 Methods
+
+=over 4
+
+=item $bool->value()
+
+Returns the boolean value.
+
+=back
+
+=head1 C<XML::Xalan::Scalar>
+
+A Perl scalar. Useful if your extension function returns a value which doesn't suit to any of the 
+above XSLT built-in data types, for example a blessed reference.
+
+=head2 Methods
+
+=over 4
+
+=item $scalar->value()
+
+Returns the scalar value.
+
+=back
+
+=head1 BUGS
+
+C<XML::Xalan::ResultTreeFragment> isn't supported yet. 
+
+=head1 AUTHOR
+
+Edwin Pratomo, edpratomo@cpan.org
+
+=head1 SEE ALSO
+
+C<XML::Xalan::Transformer>(3), C<XML::Xalan::DOM>(3), C<XML::Xalan::XObjectFactory>(3).
+
+=cut

@@ -11,7 +11,7 @@ XML::Xalan::ParsedSource - Parsed document class reusable for transformation
   my $parsed = $tr->parse_file("foo.xml");
 
   # get a DOM tree representation
-  my $dom = $tr->get_document();
+  my $dom = $parsed->get_document();
 
 =head1 DESCRIPTION
 

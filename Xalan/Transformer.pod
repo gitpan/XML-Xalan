@@ -45,9 +45,9 @@ XML::Xalan::Transformer - Perl interface to XalanTransformer class
 
 =head1 DESCRIPTION
 
-Interface to the XalanTransformer class.
+Interface to XalanTransformer class.
 
-=head1 METHODS
+=head1 Methods
 
 =over 4
 
@@ -150,42 +150,59 @@ Set an XSLT parameter, $key is the param name and val is the assigned value. Ret
  $tr->set_stylesheet_param("user", "'johndoe'");
  my $res = $tr->transform_to_file($source, $xsl, $dest);
 
-=item $tr->install_external_function($namespace, $function_name, $function, \%opt)
+=item $tr->install_function($namespace, $function_name, $function, \%opts)
 
-Install a user defined function as an extension. Returns: nothing. This opens interesting possibilities 
-since now you have a Perl-powered XSLT transformer! :-)
+Install a user defined function as an extension. Returns: nothing. C<\%opts>
+is an optional hashref to specify one or more particular option. Recognized
+option are: C<Context> and C<AutoCast>. See L<Writing Your Own Extension Function> for more elaborative information. 
 
-Example:
+=item $tr->uninstall_function($namespace, $function_name)
+
+Uninstall a previously installed user defined function. Returns: nothing. Example:
 
  my $namespace = "http://ExternalFunction.xalan-c++.xml.apache.org";
  my $func_name = "square-root";
- my $func = sub {
-    my @args = @_;
-    if (@args != 1) {
-        warn "square-root accepts exactly one arg!";
-        return undef;
-    } 
-    return POSIX::sqrt($args[0]);
- };
 
- $tr->install_external_function($namespace, $func_name, $func);
- my $res = $tr->transform_to_file($source, $xsl, $dest);
+ $tr->uninstall_function($namespace, $func_name);
 
-The function to install B<must> return a scalar. In case of fatal error,
-don't C<die()>, but you should return undef. 
+=item $tr->create_document_builder()
 
-Another example is a function to remove html tags:
+Returns an XML::Xalan::DocumentBuilder object. This object allows an C<XML::Xalan::Transformer> 
+object to transform input sources parsed by B<any Perl SAX2 conformant parsers>.
+
+See the C<XML::Xalan::DocumentBuilder> pod documentation for usage info.
+
+=item $tr->destroy_document_builder($document_builder)
+
+Destroy an XML::Xalan::DocumentBuilder object.
+
+=item $tr->errstr()
+
+Returns current error string.
+
+=back
+
+=head1 Writing Your Own Extension Function
+
+You can write an extension function in two different ways: a context-aware function, or a function which is 
+context-indifferent and always returns value of XSLT string type. The latter is very simple. Below is an example of a function to 
+remove html tags that should get you started:
 
  use HTML::Parse;
  use HTML::FormatText;
  
  ...
  
- $tr->install_external_function($namespace, 'plain-text', 
-     sub {
+ my $namespace = "http://ExternalFunction.xalan-c++.xml.apache.org";
+ my $func = sub {
          my $html_text = shift;
          return HTML::FormatText->new->format(parse_html($html_text));
-     });
+     };
+
+The function C<$func> is to be installed using C<install_function> without the optional hashref parameter, which means
+that it will B<always> accept stringified arguments and the value it returns will B<always> be treated as string. 
+
+ $tr->install_function($namespace, 'plain-text', $func);
 
  my $parsed = $tr->parse_string(<<"XML");
  <?xml version="1.0"?>
@@ -216,38 +233,49 @@ Another example is a function to remove html tags:
  die $tr->errstr unless $compiled;
  my $res = $tr->transform_to_data($parsed, $compiled) or die $tr->errstr;
 
-C<%attr> is an optional hashref attribute. Currently supported attribute is C<Context>, which is default to FALSE. 
-When this is set, then a context node is always passed to the callback function as the first argument. 
-A context node is an C<XML::Xalan::DOM::Node> object. 
+If a function is to be installed with C<Context> option, then it must be
+written to accept the following ordered arguments: an execution context, a
+context node, and C<XML::Xalan::XObject>-derived objects. An execution
+context is an C<XML::Xalan::ExecutionContext::XPath> object, and a context
+node is an C<XML::Xalan::DOM::Node>-derived object, traversable via DOM API.  
 
-=item $tr->uninstall_external_function($namespace, $function_name)
+The function then must get an C<XML::Xalan::XObjectFactory> object to create
+the return value of type C<XML::Xalan::Boolean>, or C<XML::Xalan::Number>, or
+C<XML::Xalan::String>, or C<XML::Xalan::NodeSet>, or C<XML::Xalan::Scalar>. 
 
-Uninstall a user defined function. Returns: nothing. For example, to
-uninstall the square-root example above:
+ my $func = sub {
+         my ($exec_context, $context_node, $xobj) = @_;
+         my $html_text = $xobj->string; # convert nodeset to string
+         return $exec_context->get_xobject_factory->create_string(
+            HTML::FormatText->new->format(parse_html($html_text));
+         );
+     };
 
- my $namespace = "http://ExternalFunction.xalan-c++.xml.apache.org";
- my $func_name = "square-root";
+ $tr->install_function($namespace, 'plain-text', $func, {Context => 1});
 
- $tr->uninstall_external_function($namespace, $func_name);
+The C<AutoCast> option is similar to C<Context>, but differs in the way that
+it automatically typecast certain C<XML::Xalan::XObject>-derived objects
+into their equivalent Perl scalar type, if possible. The following rule is
+used:
 
-=item $tr->create_document_builder()
+     XML::Xalan::Boolean -> Scalar contains integer
+     XML::Xalan::Number  -> Scalar contains double
+     XML::Xalan::String  -> Scalar contains string
 
-Returns an XML::Xalan::DocumentBuilder object. This object allows an C<XML::Xalan::Transformer> 
-object to transform input sources parsed by B<any Perl SAX2 conformant parsers>.
+Note that the typecasting is not happened on the returned value, which means
+that you still have to return an C<XML::Xalan::XObject>-derived object.
 
-See the C<XML::Xalan::DocumentBuilder> pod documentation for usage info.
+ my $func = sub {
+         my ($exec_context, $context_node, $arg) = @_;
+         my $html_text = ref $arg ? $arg->string : $arg;
+         return $exec_context->get_xobject_factory->create_string(
+            HTML::FormatText->new->format(parse_html($html_text));
+         );
+     };
 
-=item $tr->destroy_document_builder($document_builder)
+ $tr->install_function($namespace, 'plain-text', $func, {AutoCast => 1});
 
-Destroy an XML::Xalan::DocumentBuilder object.
-
-=item $tr->errstr()
-
-Returns current error string.
-
-=back
-
-=head1 A NOTE ON OBJECTS CLEANING UP
+=head1 A Note on Objects Cleaning Up
 
 C<XML::Xalan::Transformer> is an interface to XalanTransformer class, a C++
 class which internally keeps a list of compiled stylesheet objects and another 
@@ -307,6 +335,7 @@ Edwin Pratomo, edpratomo@cpan.org
 
 =head1 SEE ALSO
 
-C<XML::Xalan::DocumentBuilder>(3), C<XML::Xalan::ParsedSource>(3), C<XML::Xalan::DOM>(3).
+C<XML::Xalan::DocumentBuilder>(3), C<XML::Xalan::ParsedSource>(3),
+C<XML::Xalan::DOM>(3), C<XML::Xalan::XObject>(3).
 
 =cut
